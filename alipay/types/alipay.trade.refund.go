@@ -2,39 +2,122 @@ package types
 
 import "encoding/json"
 
+// RefundGoodsDetail
+// 【描述】退款包含的商品列表信息
 type RefundGoodsDetail struct {
-	OutSkuId             string   `json:"out_sku_id"`
-	OutItemId            string   `json:"out_item_id"`
-	GoodsId              string   `json:"goods_id"`
-	RefundAmount         string   `json:"refund_amount"`
+	//【描述】商家侧小程序商品sku ID，对应支付时传入的out_sku_id
+	//【示例值】outSku_01
+	OutSkuId string `json:"out_sku_id"`
+	//【描述】商家侧小程序商品ID，对应支付时传入的out_item_id
+	//【示例值】outItem_01
+	OutItemId string `json:"out_item_id"`
+	//【描述】商品编号。 对应支付时传入的goods_id
+	//【示例值】apple-01
+	GoodsId string `json:"goods_id"`
+	//【描述】该商品的退款总金额，单位为元
+	//【示例值】19.50
+	RefundAmount string `json:"refund_amount"`
+	//【描述】外部商品凭证编号列表
+	//【示例值】["202407013232143241231243243423"]
 	OutCertificateNoList []string `json:"out_certificate_no_list"`
 }
 
+// RefundRoyaltyParameter
+// 【描述】退分账明细信息。
+//
+//	注：
+//	1.当面付且非直付通模式无需传入退分账明细，系统自动按退款金额与订单金额的比率，从收款方和分账收入方退款，不支持指定退款金额与退款方。
+//	2.直付通模式，电脑网站支付，手机 APP 支付，手机网站支付产品，须在退款请求中明确是否退分账，从哪个分账收入方退，退多少分账金额；
+//	如不明确，默认从收款方退款，收款方余额不足退款失败。不支持系统按比率退款。
 type RefundRoyaltyParameter struct {
-	Amount       string `json:"amount"`
-	TransIn      string `json:"trans_in"`
-	RoyaltyType  string `json:"royalty_type"`
-	TransOut     string `json:"trans_out"`
-	TransOutType string `json:"trans_out_type"`
-	RoyaltyScene string `json:"royalty_scene"`
-	TransInType  string `json:"trans_in_type"`
-	TransInName  string `json:"trans_in_name"`
-	Desc         string `json:"desc"`
+	//【描述】分账的金额，单位为元
+	//【示例值】0.1
+	Amount string `json:"amount,omitempty"`
+	//【描述】分账类型.
+	//【枚举值】
+	//	分账: transfer
+	//	营销补差: replenish
+	//【注意事项】为空默认为分账transfer;
+	//【示例值】transfer
+	RoyaltyType string `json:"royalty_type,omitempty"`
+	//【描述】可选值：达人佣金、平台服务费、技术服务费、其他
+	//【示例值】达人佣金
+	RoyaltyScene string `json:"royalty_scene,omitempty"`
+	//【描述】支出方账户。
+	//	如果支出方账户类型为userId，本参数为支出方的支付宝账号对应的支付宝唯一用户号，
+	//	以2088开头的纯16位数字；如果支出方类型为loginName，本参数为支出方的支付宝登录号。
+	//	泛金融类商户分账时，该字段不要上送。
+	//【示例值】2088101126765726
+	TransOut string `json:"trans_out,omitempty"`
+	//【描述】支出方账户类型。
+	//【枚举值】
+	//	支付宝账号对应的支付宝唯一用户号: userId
+	//	支付宝登录号: loginName
+	//【注意事项】泛金融类商户分账时，该字段不要上送。
+	//【示例值】userId
+	TransOutType string `json:"trans_out_type,omitempty"`
+	//【描述】收入方账户。
+	//	如果收入方账户类型为userId，本参数为收入方的支付宝账号对应的支付宝唯一用户号，以2088开头的纯16位数字；
+	//	如果收入方类型为cardAliasNo，本参数为收入方在支付宝绑定的卡编号；
+	//	如果收入方类型为loginName，本参数为收入方的支付宝登录号；
+	//【示例值】2088101126708402
+	TransIn string `json:"trans_in,omitempty"`
+	//【描述】收入方账户类型。
+	//【枚举值】
+	//	支付宝账号对应的支付宝唯一用户号: userId
+	//	支付宝登录号: loginName
+	//卡编号: cardAliasNo
+	//【示例值】userId
+	TransInType string `json:"trans_in_type,omitempty"`
+	//【描述】分账收款方姓名，上送则进行姓名与支付宝账号的一致性校验，校验不一致则分账失败。
+	//	不上送则不进行姓名校验
+	//【示例值】张三
+	TransInName string `json:"trans_in_name,omitempty"`
+	//【描述】分账描述
+	//【示例值】分账给2088101126708402
+	Desc string `json:"desc,omitempty"`
 }
 
 // TradeRefund 统一收单交易退款
 type TradeRefund struct {
-	OutTradeNo   string `json:"out_trade_no"`
-	TradeNo      string `json:"trade_no"`
+	//【描述】商户订单号。 订单支付时传入的商户订单号，商家自定义且保证商家系统中唯一。
+	//	与支付宝交易号 trade_no 不能同时为空。
+	//【示例值】20150320010101001
+	OutTradeNo string `json:"out_trade_no,omitempty"`
+	//【描述】支付宝交易号。 和商户订单号 out_trade_no 不能同时为空，两者同时存在时，优先取值trade_no
+	//【示例值】2014112611001004680073956707
+	TradeNo string `json:"trade_no,omitempty"`
+	//【描述】退款金额。 需要退款的金额，该金额不能大于订单金额，单位为元，支持两位小数。
+	//	注：如果正向交易使用了营销，该退款金额包含营销金额，支付宝会按业务规则分配营销和买家自有资金分别退多少，
+	//	默认优先退买家的自有资金。如交易总金额100元，用户支付时使用了80元自有资金和20元无资金流的营销券，商家实际收款80元。
+	//	如果首次请求退款60元，则60元全部从商家收款资金扣除退回给用户自有资产；
+	//	如果再请求退款40元，则从商家收款资金扣除20元退回用户资产以及把20元的营销券退回给用户（券是否可再使用取决于券的规则配置）。
+	//【示例值】200.12
 	RefundAmount string `json:"refund_amount"`
+	//【描述】退款原因说明。 商家自定义，将在会在商户和用户的pc退款账单详情中展示
+	//【示例值】正常退款
 	RefundReason string `json:"refund_reason"`
 	//【描述】本笔退款对应的退款请求号
 	//【示例值】20150320010101001
-	OutRequestNo            string                    `json:"out_request_no"`
-	RefundGoodsDetail       []*RefundGoodsDetail      `json:"refund_goods_detail"`
+	OutRequestNo string `json:"out_request_no"`
+	//【描述】退款包含的商品列表信息
+	RefundGoodsDetail []*RefundGoodsDetail `json:"refund_goods_detail"`
+	//【描述】退分账明细信息。
+	//	注：
+	//	1.当面付且非直付通模式无需传入退分账明细，系统自动按退款金额与订单金额的比率，从收款方和分账收入方退款，不支持指定退款金额与退款方。
+	//	2.直付通模式，电脑网站支付，手机 APP 支付，手机网站支付产品，须在退款请求中明确是否退分账，从哪个分账收入方退，退多少分账金额；
+	//	如不明确，默认从收款方退款，收款方余额不足退款失败。不支持系统按比率退款。
 	RefundRoyaltyParameters []*RefundRoyaltyParameter `json:"refund_royalty_parameters"`
-	QueryOptions            []QueryOption             `json:"query_options"`
-	RelatedSettleConfirmNo  string                    `json:"related_settle_confirm_no"`
+	//【描述】查询选项。 商户通过上送该参数来定制同步需要额外返回的信息字段，数组格式。
+	//【枚举值】
+	//	本次退款使用的资金渠道: refund_detail_item_list
+	//	银行卡冲退信息: deposit_back_info
+	//	本次退款退的券信息: refund_voucher_detail_list
+	//【示例值】["refund_detail_item_list"]
+	QueryOptions []QueryOption `json:"query_options"`
+	//【描述】针对账期交易，在确认结算后退款的话，需要指定确认结算时的结算单号。
+	//【示例值】2024041122001495000530302869
+	RelatedSettleConfirmNo string `json:"related_settle_confirm_no"`
 }
 
 func (r *TradeRefund) ToString() string {
@@ -157,23 +240,55 @@ type TradeRefundResponse struct {
 	Code string `json:"code"`
 	Msg  string `json:"msg"`
 	//【描述】支付宝交易号
-	//【示例值】2014112611001004680073956707
+	//【示例值】2013112011001004330000121536
 	TradeNo string `json:"trade_no"`
-	//【描述】创建交易传入的商户订单号
-	//【示例值】20150320010101001
-	OutTradeNo              string                 `json:"out_trade_no"`
-	BuyerLogonId            string                 `json:"buyer_logon_id"`
-	FundChange              string                 `json:"fund_change"`
-	RefundFee               string                 `json:"refund_fee"`
-	RefundDetailItemList    []*RefundDetailItem    `json:"refund_detail_item_list"`
-	StoreName               string                 `json:"store_name"`
-	BuyerUserId             string                 `json:"buyer_user_id"`
-	BuyerOpenId             string                 `json:"buyer_open_id"`
-	SendBackFee             string                 `json:"send_back_fee"`
-	RefundHybAmount         string                 `json:"refund_hyb_amount"`
-	RefundChargeInfoList    []*RefundChargeInfo    `json:"refund_charge_info_list"`
+	//【描述】商户订单号
+	//【示例值】6823789339978248
+	OutTradeNo string `json:"out_trade_no"`
+	//【描述】用户的登录id
+	//【示例值】159****5620
+	BuyerLogonId string `json:"buyer_logon_id"`
+	//【描述】本次退款是否发生了资金变化
+	//【示例值】Y
+	FundChange string `json:"fund_change"`
+	//【描述】退款总金额。
+	//	单位：元。 指该笔交易累计已经退款成功的金额。
+	//【示例值】88.88
+	RefundFee string `json:"refund_fee"`
+	//【描述】退款使用的资金渠道。
+	//	只有在签约中指定需要返回资金明细，或者入参的query_options中指定时才返回该字段信息。
+	RefundDetailItemList []*RefundDetailItem `json:"refund_detail_item_list"`
+	//【描述】交易在支付时候的门店名称
+	//【必选条件】交易在支付时候的门店名称
+	//【示例值】望湘园联洋店
+	StoreName string `json:"store_name"`
+	//【描述】买家在支付宝的用户id新商户建议使用buyer_open_id替代该字段。
+	//	对于新商户，buyer_user_id字段未来计划逐步回收，存量商户可继续使用。
+	//	如使用buyer_open_id，请确认 应用-开发配置-openid配置管理 已启用。
+	//	无该配置项，可查看openid配置申请:https://opendocs.alipay.com/mini/0ai9ok?pathHash=de631c06
+	//【示例值】2088101117955611
+	BuyerUserId string `json:"buyer_user_id"`
+	//【描述】买家支付宝用户唯一标识
+	//	详情可查看 openid简介: https://opendocs.alipay.com/mini/0ai2i6?pathHash=13dd5946
+	//【示例值】074a1CcTG1LelxKe4xQC0zgNdId0nxi95b5lsNpazWYoCo5
+	BuyerOpenId string `json:"buyer_open_id"`
+	//【描述】本次商户实际退回金额。
+	//	单位：元。
+	//	说明：如需获取该值，需在入参query_options中传入 refund_detail_item_list。
+	//【示例值】1.8
+	SendBackFee string `json:"send_back_fee"`
+	//【描述】本次请求退惠营宝金额。单位：元。
+	//【示例值】10.24
+	RefundHybAmount string `json:"refund_hyb_amount"`
+	//【描述】退费信息
+	RefundChargeInfoList []*RefundChargeInfo `json:"refund_charge_info_list"`
+	//【描述】本交易支付时使用的所有优惠券信息。
+	//	只有在query_options中指定了refund_voucher_detail_list时才返回该字段信息。
 	RefundVoucherDetailList []*RefundVoucherDetail `json:"refund_voucher_detail_list"`
-	PreAuthCancelFee        string                 `json:"pre_auth_cancel_fee"`
+	//【描述】当用户使用芝麻信用先享后付时，且当前的操作为预授权撤销动作时，会返回该字段，代表当前撤销的预授权金额，单位元。
+	//【必选条件】当用户使用芝麻信用先享后付时，且当前的操作为预授权撤销动作时，会返回该字段。
+	//【示例值】12.45
+	PreAuthCancelFee string `json:"pre_auth_cancel_fee"`
 }
 
 type AlipayTradeRefundResponse struct {

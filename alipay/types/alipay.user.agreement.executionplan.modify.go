@@ -2,6 +2,7 @@ package types
 
 import "encoding/json"
 
+// AgreementExecutionPlanModify 周期性扣款协议执行计划修改接口
 type AgreementExecutionPlanModify struct {
 	//【描述】周期性扣款产品，授权免密支付协议号
 	//【示例值】20185909000458725113

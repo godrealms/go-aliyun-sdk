@@ -176,6 +176,7 @@ type IdentityParams struct {
 	IdentityHash string `json:"identity_hash,omitempty"`
 }
 
+// AgreementPageSign 支付宝个人协议页面签约接口
 type AgreementPageSign struct {
 	//【描述】个人签约产品码，商户和支付宝签约时确定，商户可咨询技术支持。
 	//【示例值】GENERAL_WITHHOLDING_P
