@@ -128,6 +128,79 @@ type ExtUserInfo struct {
 	IdentityHash string `json:"identity_hash"`
 }
 
+// SignParams
+// 【描述】签约参数。如果希望在sdk中支付并签约，需要在这里传入签约信息。
+//
+//	周期扣款场景 product_code 为 CYCLE_PAY_AUTH 时必填。
+type SignParams struct {
+	//【描述】商家和支付宝签约的产品码。 商家扣款产品传入固定值：GENERAL_WITHHOLDING
+	//【示例值】GENERAL_WITHHOLDING
+	ProductCode string `json:"product_code"`
+	//【描述】个人签约产品码，商户和支付宝签约时确定。
+	//【示例值】CYCLE_PAY_AUTH_P
+	PersonalProductCode string `json:"personal_product_code"`
+	//【描述】协议签约场景，商户和支付宝签约时确定，商户可咨询技术支持。
+	//【示例值】INDUSTRY|DIGITAL_MEDIA
+	SignScene string `json:"sign_scene"`
+	//【描述】请按当前接入的方式进行填充，且输入值必须为文档中的参数取值范围。
+	AccessParams *AccessParams `json:"access_params,omitempty"`
+	//【描述】周期管控规则参数period_rule_params，
+	//	商家扣款产品，会按照这里传入的参数提示用户，并对发起扣款的时间、金额、次数等做相应限制。
+	PeriodRuleParams *PeriodRuleParams `json:"period_rule_params,omitempty"`
+	//【描述】设置签约请求的有效时间，单位为秒。
+	//	如传入600，商户发起签约请求到用户进入支付宝签约页面的时间差不能超过10分钟。
+	//【示例值】600
+	EffectTime string `json:"effect_time,omitempty"`
+	//【描述】商户签约号，代扣协议中标示用户的唯一签约号（确保在商户系统中唯一）。
+	//	格式规则：支持大写小写字母和数字，最长32位。
+	//	商户系统按需传入，如果同一用户在同一产品码、同一签约场景下，签订了多份代扣协议，那么需要指定并传入该值。
+	//【示例值】test20190701
+	ExternalAgreementNo string `json:"external_agreement_no,omitempty"`
+	//【描述】用户在商户网站的登录账号，用于在签约页面展示，如果为空，则不展示
+	//【示例值】13888888888
+	ExternalLogonId string `json:"external_logon_id"`
+	//【描述】签约成功后商户用于接收异步通知的地址。
+	//	如果不传入，签约与支付的异步通知都会发到外层notify_url参数传入的地址；
+	//	如果外层也未传入，签约与支付的异步通知都会发到商户appid配置的网关地址。
+	//【示例值】http://www.merchant.com/receiveSignNotify
+	SignNotifyUrl string `json:"sign_notify_url"`
+}
+
+// AgreementParams
+// 【描述】代扣信息。
+//
+//	代扣业务需要传入的协议相关信息，使用本参数传入协议号后scene和auth_code不需要再传值。
+type AgreementParams struct {
+	//【描述】支付宝系统中用以唯一标识用户签约记录的编号（用户签约成功后的协议号 ）
+	//【示例值】20170322450983769228
+	AgreementNo string `json:"agreement_no,omitempty"`
+	//【描述】鉴权确认码，在需要做支付鉴权校验时，该参数不能为空
+	//【示例值】423979
+	AuthConfirmNo string `json:"auth_confirm_no,omitempty"`
+	//【描述】鉴权申请token，其格式和内容，由支付宝定义。在需要做支付鉴权校验时，该参数不能为空。
+	//【示例值】MDEDUCT0068292ca377d1d44b65fa24ec9cd89132f
+	ApplyToken string `json:"apply_token,omitempty"`
+}
+
+// PayParams
+// 【描述】支付相关参数
+type PayParams struct {
+	//【描述】普通异步支付, 传入该参数时，如果满足受理条件，会先同步受理支付，然后在异步调度推进支付
+	//	NORMAL_ASYNC: 普通异步，受理成功之后，会在交易关单之前通过一定的策略重试
+	//	NEAR_REAL_TIME_ASYNC: 准实时异步，受理成功之后，会准实时发起1次调度
+	//【示例值】NORMAL_ASYNC
+	AsyncType string `json:"async_type,omitempty"`
+}
+
+// PromoParams
+// 【描述】优惠明细参数，通过此属性补充营销参数
+type PromoParams struct {
+	//【描述】存在延迟扣款这一类的场景，用这个时间表明用户发生交易的时间，
+	//	比如说，在公交地铁场景，用户刷码出站的时间，和商户上送交易的时间是不一样的。
+	//【示例值】2018-09-25 22:47:33
+	ActualOrderTime string `json:"actual_order_time"`
+}
+
 type TradePay struct {
 	//【描述】商户网站唯一订单号。
 	//	由商家自定义，64个字符以内，仅支持字母、数字、下划线且需保证在商户端不重复。
@@ -142,29 +215,48 @@ type TradePay struct {
 	Subject string `json:"subject"`
 	//【描述】销售产品码，商家和支付宝签约的产品码
 	//【示例值】QUICK_MSECURITY_PAY
-	ProductCode string `json:"product_code"`
+	ProductCode string `json:"product_code,omitempty"`
 	//【描述】订单包含的商品列表信息，json格式，其它说明详见商品明细说明
-	GoodsDetail []*GoodsDetail `json:"goods_detail"`
+	GoodsDetail []*GoodsDetail `json:"goods_detail,omitempty"`
 	//【描述】绝对超时时间，格式为yyyy-MM-dd HH:mm:ss
 	//【示例值】2016-12-31 10:05:00
-	TimeExpire string `json:"time_expire"`
+	TimeExpire string `json:"time_expire,omitempty"`
 	//【描述】业务扩展参数
-	ExtendParams *ExtendParams `json:"extend_params"`
+	ExtendParams *ExtendParams `json:"extend_params,omitempty"`
 	//【描述】公用回传参数，如果请求时传递了该参数，则返回给商户时会回传该参数。支付宝只会在同步返回（包括跳转回商户网站）和异步通知时将该参数原样返回。本参数必须进行UrlEncode之后才可以发送给支付宝。
 	//【示例值】merchantBizType%3d3C%26merchantBizNo%3d2016010101111
-	PassbackParams string `json:"passback_params"`
+	PassbackParams string `json:"passback_params,omitempty"`
 	//【描述】商户原始订单号，最大长度限制32位
 	//【示例值】20161008001
-	MerchantOrderNo string `json:"merchant_order_no"`
+	MerchantOrderNo string `json:"merchant_order_no,omitempty"`
 	//【描述】外部指定买家
-	ExtUserInfo *ExtUserInfo `json:"ext_user_info"`
+	ExtUserInfo *ExtUserInfo `json:"ext_user_info,omitempty"`
 	//【描述】返回参数选项。 商户通过传递该参数来定制同步需要额外返回的信息字段，数组格式。包括但不限于：["hyb_amount","enterprise_pay_info"]
 	//【枚举值】
 	//	惠营宝回票金额: hyb_amount
 	//	因公付支付信息: enterprise_pay_info
 	//	医保信息: medical_insurance_info
 	//【示例值】["hyb_amount","enterprise_pay_info"]
-	QueryOptions []QueryOption `json:"query_options"`
+	QueryOptions []QueryOption `json:"query_options,omitempty"`
+	//【描述】卖家支付宝用户ID。
+	//	当需要指定收款账号时，通过该参数传入，如果该值为空，则默认为商户签约账号对应的支付宝用户ID。
+	//	收款账号优先级规则：门店绑定的收款账户>请求传入的seller_id>商户签约账号对应的支付宝用户ID；
+	//	注：直付通和机构间联场景下seller_id无需传入或者保持跟pid一致；
+	//	如果传入的seller_id与pid不一致，需要联系支付宝小二配置收款关系；
+	//	支付宝预授权和新当面资金授权场景下必填。
+	//【示例值】2088102146225135
+	SellerId string `json:"seller_id,omitempty"`
+	//【描述】代扣信息。
+	//	代扣业务需要传入的协议相关信息，使用本参数传入协议号后scene和auth_code不需要再传值。
+	AgreementParams *AgreementParams `json:"agreement_params,omitempty"`
+	//【描述】签约参数。
+	//	如果希望在sdk中支付并签约，需要在这里传入签约信息。
+	//	周期扣款场景 product_code 为 CYCLE_PAY_AUTH 时必填。
+	AgreementSignParams *SignParams `json:"agreement_sign_params,omitempty"`
+	//【描述】支付相关参数
+	PayParams *PayParams `json:"pay_params,omitempty"`
+	//【描述】优惠明细参数，通过此属性补充营销参数
+	PromoParams *PromoParams `json:"promo_params,omitempty"`
 }
 
 func (p *TradePay) ToString() string {
