@@ -11,6 +11,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"log"
+	"net/url"
 	"reflect"
 	"sort"
 	"strings"
@@ -19,6 +20,7 @@ import (
 // SignatureHelper 签名助手
 type SignatureHelper struct {
 	privateKey *rsa.PrivateKey
+	publicKey  *rsa.PublicKey
 }
 
 // NewSignatureHelper 创建签名助手
@@ -233,13 +235,13 @@ func (sh *SignatureHelper) sign(content string) (string, error) {
 }
 
 // VerifySignature 验证签名
-func (sh *SignatureHelper) VerifySignature(params map[string]interface{}, signature string) error {
+func (sh *SignatureHelper) VerifySignature(params interface{}, signature string) error {
 	// 1. 过滤参数
 	filteredParams := sh.filterParams(params)
 
 	// 2. 构建待验证的内容
 	signContent := sh.buildSignContent(filteredParams)
-
+	log.Println("signContent: ", signContent)
 	// 3. 解码签名
 	signatureBytes, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
@@ -258,4 +260,120 @@ func (sh *SignatureHelper) VerifySignature(params map[string]interface{}, signat
 	}
 
 	return nil
+}
+
+// AlipayVerifyService alipay visa verification service
+type AlipayVerifyService struct {
+	AlipayPublicKey string // 支付宝公钥
+}
+
+func NewAlipayVerifyService(alipayPublicKey string) *AlipayVerifyService {
+	return &AlipayVerifyService{
+		AlipayPublicKey: alipayPublicKey,
+	}
+}
+
+// VerifyNotifySign Verify Alipay asynchronous notification signature
+func (s *AlipayVerifyService) VerifyNotifySign(values url.Values) (bool, error) {
+	// 1. 获取签名
+	sign := values.Get("sign")
+	if sign == "" {
+		return false, fmt.Errorf("signature is empty")
+	}
+
+	// 2. 获取签名类型
+	signType := values.Get("sign_type")
+	if signType == "" {
+		signType = "RSA2" // 默认RSA2
+	}
+
+	// 3. 构建待签名字符串
+	signStr, err := s.buildSignString(values)
+	if err != nil {
+		return false, fmt.Errorf("failed to build signature string: %v", err)
+	}
+
+	log.Printf("signContent: %s\n", signStr)
+
+	// 4. 验证签名
+	return s.verifyRSA2Sign(signStr, sign)
+}
+
+// build a string to be signed
+func (s *AlipayVerifyService) buildSignString(values url.Values) (string, error) {
+	var keys []string
+
+	// 收集所有参数名（除了sign和sign_type）
+	for key := range values {
+		if key != "sign" && key != "sign_type" {
+			keys = append(keys, key)
+		}
+	}
+
+	// 按字典序排序
+	sort.Strings(keys)
+
+	// 构建签名字符串
+	var signParts []string
+	for _, key := range keys {
+		value := values.Get(key)
+		if value != "" { // 空值不参与签名
+			signParts = append(signParts, fmt.Sprintf("%s=%s", key, value))
+		}
+	}
+
+	return strings.Join(signParts, "&"), nil
+}
+
+// rsa2 signature verification
+func (s *AlipayVerifyService) verifyRSA2Sign(data, sign string) (bool, error) {
+	// 1. 解析公钥
+	publicKey, err := s.parsePublicKey(s.AlipayPublicKey)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse public key: %v", err)
+	}
+
+	// 2. Base64解码签名
+	signBytes, err := base64.StdEncoding.DecodeString(sign)
+	if err != nil {
+		return false, fmt.Errorf("signature base64 decoding failed: %v", err)
+	}
+
+	// 3. 计算数据的SHA256哈希
+	hash := sha256.Sum256([]byte(data))
+
+	// 4. 验证签名
+	err = rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hash[:], signBytes)
+	if err != nil {
+		return false, fmt.Errorf("signature verification failed: %v", err)
+	}
+
+	return true, nil
+}
+
+// analyze the alipay public key
+func (s *AlipayVerifyService) parsePublicKey(publicKeyStr string) (*rsa.PublicKey, error) {
+	// 如果公钥不包含PEM头尾，则添加
+	if !strings.Contains(publicKeyStr, "-----BEGIN") {
+		publicKeyStr = "-----BEGIN PUBLIC KEY-----\n" + publicKeyStr + "\n-----END PUBLIC KEY-----"
+	}
+
+	// 解析PEM格式
+	block, _ := pem.Decode([]byte(publicKeyStr))
+	if block == nil {
+		return nil, fmt.Errorf("public key format error")
+	}
+
+	// 解析公钥
+	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse public key: %v", err)
+	}
+
+	publicKey, ok := pubInterface.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("public key type error not rsa public key")
+	}
+
+	return publicKey, nil
 }
