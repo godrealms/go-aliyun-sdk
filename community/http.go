@@ -158,8 +158,11 @@ func (h *HTTP) Delete(ctx context.Context, path string, result interface{}) erro
 }
 
 // PostForm 发送 POST 表单请求
-func (h *HTTP) PostForm(ctx context.Context, path string, form url.Values, result interface{}) error {
+func (h *HTTP) PostForm(ctx context.Context, path string, form url.Values, query url.Values, result interface{}) error {
 	fullURL := h.BaseURL + path
+	if query != nil {
+		fullURL += "?" + query.Encode()
+	}
 
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fullURL, strings.NewReader(form.Encode()))

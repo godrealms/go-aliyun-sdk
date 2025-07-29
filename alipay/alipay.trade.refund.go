@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"github.com/godrealms/go-aliyun-sdk/community"
+	"net/url"
 	"time"
 )
 
@@ -32,7 +33,17 @@ func (c *Client) AlipayTradeRefund(request *types.TradeRefund) (*types.AlipayTra
 	}
 	value := data.ToUrlValue()
 	result := &types.AlipayTradeRefundResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	query := url.Values{
+		"charset":   []string{"UTF-8"},
+		"method":    []string{"alipay.trade.refund"},
+		"format":    []string{"JSON"},
+		"sign":      []string{data.Sign},
+		"app_id":    []string{c.AppId},
+		"version":   []string{"1.0"},
+		"sign_type": []string{"RSA2"},
+		"timestamp": []string{time.Now().Format("2006-01-02 15:04:05")},
+	}
+	err = c.Http.PostForm(context.Background(), "", value, query, result)
 	if err != nil {
 		return nil, err
 	}
