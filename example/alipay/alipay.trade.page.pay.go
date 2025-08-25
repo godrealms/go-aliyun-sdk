@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"strconv"
+	"time"
+
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"log"
 )
 
 func main() {
@@ -21,16 +25,25 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAniS+LEHNKHSdjQtpwuLzIQFLcMgIWcgdbkIu
 -----END PUBLIC KEY-----`
 	client.Http.SetBaseURL("https://openapi-sandbox.dl.alipaydev.com/gateway.do")
 
-	query := &types.TradeQuery{
-		OutTradeNo:   "",
-		TradeNo:      "",
-		OrgPid:       "",
-		QueryOptions: nil,
+	form := &types.TradePay{
+		OutTradeNo:      fmt.Sprintf("%s%d", time.Now().Format("20060102150405"), time.Now().Unix()),
+		TotalAmount:     "0.01",
+		Subject:         "测试支付",
+		ProductCode:     "FAST_INSTANT_TRADE_PAY",
+		GoodsDetail:     nil,
+		TimeExpire:      "",
+		ExtendParams:    nil,
+		PassbackParams:  "",
+		MerchantOrderNo: "",
+		ExtUserInfo:     nil,
+		QueryOptions:    nil,
+		QrPayMode:       strconv.Itoa(4),
+		QrcodeWidth:     200,
 	}
 
-	tradeAppPay, err := client.AlipayTradeQuery(query)
+	tradePay, err := client.AlipayTradePagePay(form)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(tradeAppPay)
+	log.Println(tradePay)
 }

@@ -2,15 +2,16 @@ package alipay
 
 import (
 	"context"
+	"time"
+
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"github.com/godrealms/go-aliyun-sdk/community"
-	"time"
 )
 
-func (c *Client) AlipayTradePay(form *types.TradePay) (*types.TradePayResponse, error) {
+func (c *Client) AlipayTradePreCreate(form *types.TradePay) (*types.AlipayTradePreCreateResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
-		Method:       "alipay.trade.pay",
+		Method:       "alipay.trade.precreate",
 		Format:       "JSON",
 		ReturnUrl:    c.ReturnUrl,
 		Charset:      "UTF-8",
@@ -31,7 +32,7 @@ func (c *Client) AlipayTradePay(form *types.TradePay) (*types.TradePayResponse, 
 		return nil, err
 	}
 	value := data.ToUrlValue()
-	result := &types.TradePayResponse{}
+	result := &types.AlipayTradePreCreateResponse{}
 	err = c.Http.Get(context.Background(), "", value, result)
 	if err != nil {
 		return nil, err
