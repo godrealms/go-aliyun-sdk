@@ -2,13 +2,15 @@ package alipay
 
 import (
 	"context"
-	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
+	"fmt"
 	"net/url"
 	"time"
+
+	"github.com/godrealms/go-aliyun-sdk/alipay/types"
+	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
-func (c *Client) AlipayTradeRefund(request *types.TradeRefund) (*types.AlipayTradeRefundResponse, error) {
+func (c *Client) AlipayTradeRefund(request *types.TradeRefund) (*types.TradeRefundResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.refund",
@@ -47,5 +49,8 @@ func (c *Client) AlipayTradeRefund(request *types.TradeRefund) (*types.AlipayTra
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	if result.Response.Code != "10000" {
+		return nil, fmt.Errorf("alipay trade refund failed: %s", result.Response.Msg)
+	}
+	return &result.Response, nil
 }
