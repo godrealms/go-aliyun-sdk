@@ -2,14 +2,17 @@ package community
 
 import (
 	"crypto"
+	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"hash"
 	"log"
 	"net/url"
 	"reflect"
@@ -17,27 +20,83 @@ import (
 	"strings"
 )
 
+// HashAlgorithm 哈希算法类型
+type HashAlgorithm int
+
+const (
+	SHA256Hash HashAlgorithm = iota
+	SHA512Hash
+)
+
 // SignatureHelper 签名助手
 type SignatureHelper struct {
-	privateKey *rsa.PrivateKey
-	publicKey  *rsa.PublicKey
+	privateKey interface{} // 可以是 *rsa.PrivateKey 或 *ecdsa.PrivateKey
+	publicKey  interface{} // 对应的公钥
+	keyType    string      // "RSA" 或 "EC"
 }
 
 // NewSignatureHelper 创建签名助手
 func NewSignatureHelper(privateKeyPEM string) (*SignatureHelper, error) {
-	block, _ := pem.Decode([]byte(privateKeyPEM))
-	if block == nil {
-		return nil, fmt.Errorf("failed to decode PEM block")
+	if privateKeyPEM == "" {
+		return nil, fmt.Errorf("private key PEM cannot be empty")
 	}
 
-	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	block, _ := pem.Decode([]byte(privateKeyPEM))
+	if block == nil {
+		return nil, fmt.Errorf("failed to decode PEM block: invalid PEM format")
+	}
+
+	// 尝试解析各种格式
+	key, keyType, err := parsePrivateKey(block.Bytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse private key: %w", err)
 	}
 
+	var publicKey interface{}
+	switch k := key.(type) {
+	case *rsa.PrivateKey:
+		// 验证 RSA 私钥
+		if err := k.Validate(); err != nil {
+			return nil, fmt.Errorf("invalid RSA private key: %w", err)
+		}
+		publicKey = &k.PublicKey
+	case *ecdsa.PrivateKey:
+		publicKey = &k.PublicKey
+	default:
+		return nil, fmt.Errorf("unsupported key type: %T", k)
+	}
+
 	return &SignatureHelper{
-		privateKey: privateKey,
+		privateKey: key,
+		publicKey:  publicKey,
+		keyType:    keyType,
 	}, nil
+}
+
+func parsePrivateKey(keyBytes []byte) (interface{}, string, error) {
+	// 尝试 PKCS#8
+	if key, err := x509.ParsePKCS8PrivateKey(keyBytes); err == nil {
+		switch key.(type) {
+		case *rsa.PrivateKey:
+			return key, "RSA", nil
+		case *ecdsa.PrivateKey:
+			return key, "EC", nil
+		default:
+			return nil, "", fmt.Errorf("unsupported key type: %T", key)
+		}
+	}
+
+	// 尝试 PKCS#1 (RSA)
+	if key, err := x509.ParsePKCS1PrivateKey(keyBytes); err == nil {
+		return key, "RSA", nil
+	}
+
+	// 尝试 EC
+	if key, err := x509.ParseECPrivateKey(keyBytes); err == nil {
+		return key, "EC", nil
+	}
+
+	return nil, "", fmt.Errorf("unsupported key format")
 }
 
 // GenerateSignature 生成签名
@@ -222,13 +281,36 @@ func (sh *SignatureHelper) buildSignContent(params map[string]string) string {
 
 // sign 签名
 func (sh *SignatureHelper) sign(content string) (string, error) {
+	if content == "" {
+		return "", fmt.Errorf("content cannot be empty")
+	}
+
 	hash := sha256.New()
 	hash.Write([]byte(content))
 	digest := hash.Sum(nil)
 
-	signature, err := rsa.SignPKCS1v15(rand.Reader, sh.privateKey, crypto.SHA256, digest)
+	var signature []byte
+	var err error
+
+	switch sh.keyType {
+	case "RSA":
+		rsaKey, ok := sh.privateKey.(*rsa.PrivateKey)
+		if !ok {
+			return "", fmt.Errorf("invalid RSA private key")
+		}
+		signature, err = rsa.SignPKCS1v15(rand.Reader, rsaKey, crypto.SHA256, digest)
+	case "EC":
+		ecKey, ok := sh.privateKey.(*ecdsa.PrivateKey)
+		if !ok {
+			return "", fmt.Errorf("invalid ECDSA private key")
+		}
+		signature, err = ecdsa.SignASN1(rand.Reader, ecKey, digest)
+	default:
+		return "", fmt.Errorf("unsupported key type: %s", sh.keyType)
+	}
+
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to sign content: %w", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(signature), nil
@@ -236,12 +318,17 @@ func (sh *SignatureHelper) sign(content string) (string, error) {
 
 // VerifySignature 验证签名
 func (sh *SignatureHelper) VerifySignature(params interface{}, signature string) error {
+	if signature == "" {
+		return fmt.Errorf("signature cannot be empty")
+	}
+
 	// 1. 过滤参数
 	filteredParams := sh.filterParams(params)
 
 	// 2. 构建待验证的内容
 	signContent := sh.buildSignContent(filteredParams)
 	log.Println("signContent: ", signContent)
+
 	// 3. 解码签名
 	signatureBytes, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
@@ -253,13 +340,121 @@ func (sh *SignatureHelper) VerifySignature(params interface{}, signature string)
 	hash.Write([]byte(signContent))
 	digest := hash.Sum(nil)
 
-	// 5. 验证签名
-	err = rsa.VerifyPKCS1v15(&sh.privateKey.PublicKey, crypto.SHA256, digest, signatureBytes)
+	// 5. 根据密钥类型验证签名
+	switch sh.keyType {
+	case "RSA":
+		rsaPubKey, ok := sh.publicKey.(*rsa.PublicKey)
+		if !ok {
+			return fmt.Errorf("invalid RSA public key")
+		}
+		err = rsa.VerifyPKCS1v15(rsaPubKey, crypto.SHA256, digest, signatureBytes)
+	case "EC":
+		ecPubKey, ok := sh.publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			return fmt.Errorf("invalid ECDSA public key")
+		}
+		if !ecdsa.VerifyASN1(ecPubKey, digest, signatureBytes) {
+			err = fmt.Errorf("ECDSA signature verification failed")
+		}
+	default:
+		return fmt.Errorf("unsupported key type: %s", sh.keyType)
+	}
+
 	if err != nil {
 		return fmt.Errorf("signature verification failed: %w", err)
 	}
 
 	return nil
+}
+
+// SignWithHash 使用指定哈希算法签名
+func (sh *SignatureHelper) SignWithHash(content string, hashAlg HashAlgorithm) (string, error) {
+	if content == "" {
+		return "", fmt.Errorf("content cannot be empty")
+	}
+
+	var hasher crypto.Hash
+	var hashFunc func() hash.Hash
+
+	switch hashAlg {
+	case SHA256Hash:
+		hasher = crypto.SHA256
+		hashFunc = sha256.New
+	case SHA512Hash:
+		hasher = crypto.SHA512
+		hashFunc = sha512.New
+	default:
+		return "", fmt.Errorf("unsupported hash algorithm: %v", hashAlg)
+	}
+
+	h := hashFunc()
+	h.Write([]byte(content))
+	digest := h.Sum(nil)
+
+	var signature []byte
+	var err error
+
+	switch sh.keyType {
+	case "RSA":
+		rsaKey, ok := sh.privateKey.(*rsa.PrivateKey)
+		if !ok {
+			return "", fmt.Errorf("invalid RSA private key")
+		}
+		signature, err = rsa.SignPKCS1v15(rand.Reader, rsaKey, hasher, digest)
+	case "EC":
+		ecKey, ok := sh.privateKey.(*ecdsa.PrivateKey)
+		if !ok {
+			return "", fmt.Errorf("invalid ECDSA private key")
+		}
+		signature, err = ecdsa.SignASN1(rand.Reader, ecKey, digest)
+	default:
+		return "", fmt.Errorf("unsupported key type: %s", sh.keyType)
+	}
+
+	if err != nil {
+		return "", fmt.Errorf("failed to sign content: %w", err)
+	}
+
+	return base64.StdEncoding.EncodeToString(signature), nil
+}
+
+// GetKeyType 获取密钥类型
+func (sh *SignatureHelper) GetKeyType() string {
+	return sh.keyType
+}
+
+// GetPublicKeyPEM 获取公钥的 PEM 格式
+func (sh *SignatureHelper) GetPublicKeyPEM() (string, error) {
+	var pubKeyBytes []byte
+	var err error
+
+	switch sh.keyType {
+	case "RSA":
+		rsaPubKey, ok := sh.publicKey.(*rsa.PublicKey)
+		if !ok {
+			return "", fmt.Errorf("invalid RSA public key")
+		}
+		pubKeyBytes, err = x509.MarshalPKIXPublicKey(rsaPubKey)
+	case "EC":
+		ecPubKey, ok := sh.publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			return "", fmt.Errorf("invalid ECDSA public key")
+		}
+		pubKeyBytes, err = x509.MarshalPKIXPublicKey(ecPubKey)
+	default:
+		return "", fmt.Errorf("unsupported key type: %s", sh.keyType)
+	}
+
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal public key: %w", err)
+	}
+
+	pubKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: pubKeyBytes,
+	})
+
+	return string(pubKeyPEM), nil
 }
 
 // AlipayVerifyService alipay visa verification service

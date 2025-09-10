@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"time"
+
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"log"
 )
 
 func main() {
@@ -22,10 +25,10 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAniS+LEHNKHSdjQtpwuLzIQFLcMgIWcgdbkIu
 	client.Http.SetBaseURL("https://openapi-sandbox.dl.alipaydev.com/gateway.do")
 
 	query := &types.TradePay{
-		OutTradeNo:      "",
-		TotalAmount:     "",
-		Subject:         "",
-		ProductCode:     "",
+		OutTradeNo:      fmt.Sprintf("%s%d", time.Now().Format("20060102150405"), time.Now().Unix()),
+		TotalAmount:     "0.01",
+		Subject:         "测试支付",
+		ProductCode:     "QUICK_MSECURITY_PAY",
 		GoodsDetail:     nil,
 		TimeExpire:      "",
 		ExtendParams:    nil,
