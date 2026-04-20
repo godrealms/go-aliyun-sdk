@@ -14,6 +14,7 @@ func (c *Client) AlipayTradeCreate(req *types.TradeCreate) (*types.AlipayTradeCr
 		AppId:        c.AppId,
 		Method:       "alipay.trade.create",
 		Format:       "JSON",
+		ReturnUrl:    c.ReturnUrl,
 		Charset:      "UTF-8",
 		SignType:     "RSA2",
 		Timestamp:    time.Now().Format("2006-01-02 15:04:05"),

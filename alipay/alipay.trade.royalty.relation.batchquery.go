@@ -14,10 +14,12 @@ func (c *Client) AlipayTradeRoyaltyRelationBatchquery(req *types.TradeRoyaltyRel
 		AppId:        c.AppId,
 		Method:       "alipay.trade.royalty.relation.batchquery",
 		Format:       "JSON",
+		ReturnUrl:    c.ReturnUrl,
 		Charset:      "UTF-8",
 		SignType:     "RSA2",
 		Timestamp:    time.Now().Format("2006-01-02 15:04:05"),
 		Version:      "1.0",
+		NotifyUrl:    c.NotifyUrl,
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   req.ToString(),
 	}
