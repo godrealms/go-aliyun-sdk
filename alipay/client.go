@@ -20,3 +20,12 @@ func NewClient() *Client {
 	}
 	return client
 }
+
+func NewISVClient(appId, privateKey, alipayPublicKey, appAuthToken string) *Client {
+	client := NewClient()
+	client.AppId = appId
+	client.PrivateKey = privateKey
+	client.AlipayPublicKey = alipayPublicKey
+	client.AppAuthToken = appAuthToken
+	return client
+}
