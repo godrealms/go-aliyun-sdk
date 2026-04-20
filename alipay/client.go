@@ -16,7 +16,7 @@ type Client struct {
 
 func NewClient() *Client {
 	client := &Client{
-		Http: community.NewHTTP("https://api.community.alipay.com/gateway.do"),
+		Http: community.NewHTTP("https://openapi.alipay.com/gateway.do"),
 	}
 	return client
 }

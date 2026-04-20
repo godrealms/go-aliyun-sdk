@@ -37,6 +37,9 @@ type PublicRequestParameters struct {
 	NotifyUrl string `json:"notify_url,omitempty"`
 	//【描述】详见应用授权概述: https://opendocs.alipay.com/isv/10467/xldcyq
 	AppAuthToken string `json:"app_auth_token,omitempty"`
+	//【描述】用户级授权令牌，OAuth 2.0 用户信息接口使用（区别于 ISV 的 app_auth_token）
+	//【示例值】20120823SAFDDadfads
+	AuthToken string `json:"auth_token,omitempty"`
 	//【描述】请求参数的集合，最大长度不限，除公共参数外所有请求参数都必须放在这个参数中传递，具体参照各产品快速接入文档
 	BizContent string `json:"biz_content"`
 }
@@ -50,5 +53,4 @@ type PublicResponseParameters struct {
 	Msg     string `json:"msg"`      // 必选	- 网关返回码描述,详见文档: https://opendoc.alipay.com/common/02km9f
 	SubCode string `json:"sub_code"` // 可选	- 业务返回码，参见具体的API接口文档
 	SubMsg  string `json:"sub_msg"`  // 可选	- 业务返回码描述，参见具体的API接口文档
-	Sign    string `json:"sign"`     // 必选	- 签名,详见文档: https://opendoc.alipay.com/common/02kf5q
 }
