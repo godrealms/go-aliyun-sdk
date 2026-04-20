@@ -31,4 +31,10 @@ func TestAlipayFundTransUniTransfer(t *testing.T) {
 	if resp.AlipayFundTransUniTransferResponse.Code != "10000" {
 		t.Errorf("Code = %q, want 10000", resp.AlipayFundTransUniTransferResponse.Code)
 	}
+	if resp.AlipayFundTransUniTransferResponse.OutBizNo != "biz001" {
+		t.Errorf("OutBizNo = %q, want biz001", resp.AlipayFundTransUniTransferResponse.OutBizNo)
+	}
+	if resp.AlipayFundTransUniTransferResponse.OrderId != "20260420110070000006880000000000" {
+		t.Errorf("OrderId = %q, want 20260420110070000006880000000000", resp.AlipayFundTransUniTransferResponse.OrderId)
+	}
 }
