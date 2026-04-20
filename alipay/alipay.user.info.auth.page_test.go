@@ -8,8 +8,7 @@ import (
 )
 
 func TestGetUserAuthPageURL_Production(t *testing.T) {
-	client := NewClient()
-	client.AppId = "app_test_001"
+	client := NewISVClient("app_test_001", "", "", "")
 	req := &types.UserInfoAuthPage{
 		Scope:       "auth_user",
 		RedirectUri: "https://example.com/callback",
@@ -37,8 +36,7 @@ func TestGetUserAuthPageURL_Production(t *testing.T) {
 }
 
 func TestGetUserAuthPageURL_Sandbox(t *testing.T) {
-	client := NewClient()
-	client.AppId = "app_test_001"
+	client := NewISVClient("app_test_001", "", "", "")
 	client.Sandbox = true
 	req := &types.UserInfoAuthPage{
 		Scope:       "auth_base",
@@ -54,8 +52,7 @@ func TestGetUserAuthPageURL_Sandbox(t *testing.T) {
 }
 
 func TestGetUserAuthPageURL_MissingRedirectUri(t *testing.T) {
-	client := NewClient()
-	client.AppId = "app_test_001"
+	client := NewISVClient("app_test_001", "", "", "")
 	req := &types.UserInfoAuthPage{Scope: "auth_user"}
 	_, err := client.GetUserAuthPageURL(req)
 	if err == nil {
@@ -64,8 +61,7 @@ func TestGetUserAuthPageURL_MissingRedirectUri(t *testing.T) {
 }
 
 func TestGetUserAuthPageURL_MissingScope(t *testing.T) {
-	client := NewClient()
-	client.AppId = "app_test_001"
+	client := NewISVClient("app_test_001", "", "", "")
 	req := &types.UserInfoAuthPage{RedirectUri: "https://example.com/callback"}
 	_, err := client.GetUserAuthPageURL(req)
 	if err == nil {
