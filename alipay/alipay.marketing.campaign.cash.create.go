@@ -8,6 +8,7 @@ import (
 	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
+// AlipayMarketingCampaignCashCreate 创建现金活动（alipay.marketing.campaign.cash.create）
 func (c *Client) AlipayMarketingCampaignCashCreate(request *types.CampaignCashCreate) (*types.AlipayMarketingCampaignCashCreateResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,

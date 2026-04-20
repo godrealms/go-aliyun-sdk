@@ -25,6 +25,9 @@ func TestAlipayMarketingCampaignCashCreate(t *testing.T) {
 	if resp.AlipayMarketingCampaignCashCreateResponse.Code != "10000" {
 		t.Errorf("Code = %q, want 10000", resp.AlipayMarketingCampaignCashCreateResponse.Code)
 	}
+	if resp.AlipayMarketingCampaignCashCreateResponse.Msg != "Success" {
+		t.Errorf("Msg = %q, want Success", resp.AlipayMarketingCampaignCashCreateResponse.Msg)
+	}
 	if resp.AlipayMarketingCampaignCashCreateResponse.CrowdNo != "20260420001" {
 		t.Errorf("CrowdNo = %q, want 20260420001", resp.AlipayMarketingCampaignCashCreateResponse.CrowdNo)
 	}

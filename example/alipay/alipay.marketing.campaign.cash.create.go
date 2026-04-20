@@ -20,8 +20,8 @@ func main() {
 		BudgetInfo:  `{"total_budget":"1000.00"}`,
 		PrizeInfo:   `{"prize_amount":"10.00"}`,
 		SendChannel: "ALISEND",
-		StartTime:   "2026-04-20 00:00:00",
-		EndTime:     "2026-05-20 23:59:59",
+		StartTime:   os.Getenv("ALIPAY_CAMPAIGN_START_TIME"),
+		EndTime:     os.Getenv("ALIPAY_CAMPAIGN_END_TIME"),
 	})
 	if err != nil {
 		log.Fatal(err)
