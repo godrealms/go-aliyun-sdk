@@ -22,5 +22,5 @@ type CardDeleteDetail struct {
 
 type AlipayMarketingCardDeleteResponse struct {
 	AlipayMarketingCardDeleteResponse CardDeleteDetail `json:"alipay_marketing_card_delete_response"`
-	Sign                               string           `json:"sign"`
+	Sign                              string           `json:"sign"`
 }

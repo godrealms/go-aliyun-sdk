@@ -14,7 +14,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 	resp, err := client.AlipayMarketingVoucherSend(&types.VoucherSend{
-		VoucherId: os.Getenv("ALIPAY_VOUCHER_ID"), OpenId: os.Getenv("ALIPAY_OPEN_ID"), OutBizNo: "send20260420001",
+		VoucherId: os.Getenv("ALIPAY_VOUCHER_ID"), OpenId: os.Getenv("ALIPAY_OPEN_ID"), OutBizNo: os.Getenv("ALIPAY_OUT_BIZ_NO"),
 	})
 	if err != nil {
 		log.Fatal(err)

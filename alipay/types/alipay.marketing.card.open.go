@@ -27,5 +27,5 @@ type CardOpenDetail struct {
 
 type AlipayMarketingCardOpenResponse struct {
 	AlipayMarketingCardOpenResponse CardOpenDetail `json:"alipay_marketing_card_open_response"`
-	Sign                             string         `json:"sign"`
+	Sign                            string         `json:"sign"`
 }

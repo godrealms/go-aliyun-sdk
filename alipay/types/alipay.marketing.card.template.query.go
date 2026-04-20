@@ -23,5 +23,5 @@ type CardTemplateQueryDetail struct {
 
 type AlipayMarketingCardTemplateQueryResponse struct {
 	AlipayMarketingCardTemplateQueryResponse CardTemplateQueryDetail `json:"alipay_marketing_card_template_query_response"`
-	Sign                                      string                  `json:"sign"`
+	Sign                                     string                  `json:"sign"`
 }

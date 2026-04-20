@@ -14,7 +14,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 	resp, err := client.AlipayMarketingCardOpen(&types.CardOpen{
-		RequestId: "req20260420001", TemplateId: os.Getenv("ALIPAY_TEMPLATE_ID"),
+		RequestId: os.Getenv("ALIPAY_REQUEST_ID"), TemplateId: os.Getenv("ALIPAY_TEMPLATE_ID"),
 	})
 	if err != nil {
 		log.Fatal(err)

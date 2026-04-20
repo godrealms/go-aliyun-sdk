@@ -40,5 +40,5 @@ type CampaignCashCreateDetail struct {
 
 type AlipayMarketingCampaignCashCreateResponse struct {
 	AlipayMarketingCampaignCashCreateResponse CampaignCashCreateDetail `json:"alipay_marketing_campaign_cash_create_response"`
-	Sign                                       string                   `json:"sign"`
+	Sign                                      string                   `json:"sign"`
 }

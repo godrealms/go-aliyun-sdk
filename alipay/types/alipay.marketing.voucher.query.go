@@ -28,5 +28,5 @@ type VoucherQueryDetail struct {
 
 type AlipayMarketingVoucherQueryResponse struct {
 	AlipayMarketingVoucherQueryResponse VoucherQueryDetail `json:"alipay_marketing_voucher_query_response"`
-	Sign                                 string             `json:"sign"`
+	Sign                                string             `json:"sign"`
 }

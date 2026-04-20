@@ -29,5 +29,5 @@ type CardTemplateCreateDetail struct {
 
 type AlipayMarketingCardTemplateCreateResponse struct {
 	AlipayMarketingCardTemplateCreateResponse CardTemplateCreateDetail `json:"alipay_marketing_card_template_create_response"`
-	Sign                                       string                   `json:"sign"`
+	Sign                                      string                   `json:"sign"`
 }
