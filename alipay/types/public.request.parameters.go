@@ -53,5 +53,4 @@ type PublicResponseParameters struct {
 	Msg     string `json:"msg"`      // 必选	- 网关返回码描述,详见文档: https://opendoc.alipay.com/common/02km9f
 	SubCode string `json:"sub_code"` // 可选	- 业务返回码，参见具体的API接口文档
 	SubMsg  string `json:"sub_msg"`  // 可选	- 业务返回码描述，参见具体的API接口文档
-	Sign    string `json:"sign"`     // 必选	- 签名,详见文档: https://opendoc.alipay.com/common/02kf5q
 }
