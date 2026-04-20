@@ -28,11 +28,11 @@ type SystemOauthTokenDetail struct {
 	//【描述】访问令牌，有效期见 expires_in
 	AccessToken string `json:"access_token"`
 	//【描述】访问令牌有效期，单位秒
-	ExpiresIn string `json:"expires_in"`
+	ExpiresIn int64 `json:"expires_in"`
 	//【描述】刷新令牌，有效期见 re_expires_in
 	RefreshToken string `json:"refresh_token"`
 	//【描述】刷新令牌有效期，单位秒
-	ReExpiresIn string `json:"re_expires_in"`
+	ReExpiresIn int64 `json:"re_expires_in"`
 }
 
 // AlipaySystemOauthTokenResponse 换取用户授权令牌响应
