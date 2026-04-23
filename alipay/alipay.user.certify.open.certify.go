@@ -31,5 +31,5 @@ func (c *Client) AlipayUserCertifyOpenCertify(request *types.UserCertifyOpenCert
 		return "", err
 	}
 
-	return c.Http.BaseURL + "?" + data.ToUrlValue().Encode(), nil
+	return c.Http.GetBaseURL() + "?" + data.ToUrlValue().Encode(), nil
 }

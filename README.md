@@ -8,6 +8,9 @@ Go SDK for Aliyun services, including Alipay API integration.
 ## 功能特性
 
 - 支付宝接口完整封装，包括支付、退款、查询、关闭交易等
+- 服务端建单（`trade.create`）、交易结算（`trade.order.settle`）、订单信息同步
+- 分账管理：绑定/解绑分账关系、批量查询、比例查询
+- 风控预咨询（`trade.advance.consult`）
 - 支持用户协议管理（签约、解约、查询、修改等）
 - 账单下载功能
 - 异步通知处理与验证
@@ -82,14 +85,155 @@ resp, err := client.AlipayTradeQuery(&types.TradeQuery{
 })
 ```
 
+### H5 手机网站支付
+
+```go
+client.ReturnUrl = "https://example.com/return"
+client.NotifyUrl = "https://example.com/notify"
+
+payURL, err := client.AlipayTradeWapPay(&types.TradeWapPay{
+    OutTradeNo:  "20240101001",
+    Subject:     "商品名称",
+    TotalAmount: "88.00",
+    ProductCode: "QUICK_WAP_WAY",
+    QuitUrl:     "https://example.com/quit",
+})
+// 重定向到 payURL 完成支付
+```
+
+### 服务端建单
+
+通过服务端预建订单，适合需要先在支付宝系统创建订单再唤起支付的场景：
+
+```go
+resp, err := client.AlipayTradeCreate(&types.TradeCreate{
+    OutTradeNo:  "20240101001",
+    Subject:     "商品名称",
+    TotalAmount: "88.00",
+    BuyerId:     "2088xxxxxxxx",  // 买家支付宝 UID
+})
+if err != nil {
+    log.Fatal(err)
+}
+log.Printf("TradeNo: %s", resp.Response.TradeNo)
+```
+
+### 交易结算（分账）
+
+对已完成的交易发起分账结算，`RoyaltyParameters` 为 JSON 字符串，描述分账比例/金额及收款方：
+
+```go
+royaltyParams := `[{"trans_in":"2088xxxxxxxx","trans_in_type":"userId","amount":"10.00","desc":"分账说明"}]`
+
+resp, err := client.AlipayTradeOrderSettle(&types.TradeOrderSettle{
+    OutRequestNo:      "settle_20240101001",
+    TradeNo:           "2024xxxxxxxxxxxxxxxx",
+    RoyaltyParameters: royaltyParams,
+})
+if err != nil {
+    log.Fatal(err)
+}
+log.Printf("TradeNo: %s", resp.Response.TradeNo)
+```
+
+### 风控预咨询
+
+在发起支付前查询风控建议，根据 `NextAction` 决定是否继续：
+
+```go
+resp, err := client.AlipayTradeAdvanceConsult(&types.TradeAdvanceConsult{
+    OutTradeNo:  "20240101001",
+    TotalAmount: "88.00",
+    Subject:     "商品名称",
+})
+if err != nil {
+    log.Fatal(err)
+}
+log.Printf("ConsultId: %s, NextAction: %s, RiskLevel: %s",
+    resp.Response.ConsultId,
+    resp.Response.NextAction,
+    resp.Response.RiskLevel,
+)
+```
+
+### 分账关系管理
+
+**绑定分账关系**（`ReceiverList` 为 JSON 字符串，描述收款方信息）：
+
+```go
+receivers := `[{"type":"userId","account":"2088xxxxxxxx","name":"张三","memo":"合作商家"}]`
+
+resp, err := client.AlipayTradeRoyaltyRelationBind(&types.TradeRoyaltyRelationBind{
+    OutRequestNo: "bind_20240101001",
+    ReceiverList: receivers,
+})
+```
+
+**解绑分账关系**：
+
+```go
+resp, err := client.AlipayTradeRoyaltyRelationUnbind(&types.TradeRoyaltyRelationUnbind{
+    OutRequestNo: "unbind_20240101001",
+    ReceiverList: receivers,
+})
+```
+
+**批量查询分账关系**：
+
+```go
+resp, err := client.AlipayTradeRoyaltyRelationBatchquery(&types.TradeRoyaltyRelationBatchquery{
+    OutRequestNo: "query_20240101001",
+    PageNum:      1,
+    PageSize:     10,
+})
+if err != nil {
+    log.Fatal(err)
+}
+log.Printf("共 %d 条", resp.Response.Count)
+for _, r := range resp.Response.ReceiverInfos {
+    log.Printf("  账号: %s (%s)", r.ReceiverAccount, r.ReceiverName)
+}
+```
+
+**查询分账比例**：
+
+```go
+resp, err := client.AlipayTradeRoyaltyRateQuery(&types.TradeRoyaltyRateQuery{
+    OutRequestNo: "ratequery_20240101001",
+})
+if err != nil {
+    log.Fatal(err)
+}
+for _, info := range resp.Response.RoyaltyInfos {
+    log.Printf("类型: %s, 比例: %s", info.RoyaltyType, info.Rate)
+}
+```
+
+### 订单信息同步
+
+将商户侧订单状态同步至支付宝，适用于先享后付、信用场景等：
+
+```go
+resp, err := client.AlipayTradeOrderinfoSync(&types.TradeOrderinfoSync{
+    TradeNo:      "2024xxxxxxxxxxxxxxxx",
+    OutRequestNo: "sync_20240101001",
+    OrderType:    "CREDITCASHADVANCE",
+    OrderScene:   "CONFIRM",
+})
+if err != nil {
+    log.Fatal(err)
+}
+log.Printf("Code: %s", resp.Response.Code)
+```
+
 ## 支持的接口
 
 ### 支付相关
-- `alipay.trade.pay` - 统一收单交易支付接口
-- `alipay.trade.precreate` - 统一收单线下交易预创建
+- `alipay.trade.pay` - 统一收单交易支付接口（当面付条码）
+- `alipay.trade.precreate` - 统一收单线下交易预创建（扫码付）
 - `alipay.trade.app.pay` - App 支付接口
 - `alipay.trade.page.pay` - 电脑网站支付接口
-- `alipay.trade.wap.pay` - 手机网站支付接口
+- `alipay.trade.wap.pay` - 手机网站支付接口（H5）
 
 ### 交易管理
 - `alipay.trade.query` - 统一收单交易查询
@@ -97,6 +241,18 @@ resp, err := client.AlipayTradeQuery(&types.TradeQuery{
 - `alipay.trade.fastpay.refund.query` - 统一收单交易退款查询
 - `alipay.trade.close` - 统一收单交易关闭接口
 - `alipay.trade.cancel` - 统一收单交易撤销接口
+- `alipay.trade.create` - 统一收单下单（服务端建单）
+- `alipay.trade.order.settle` - 统一收单交易结算（分账）
+- `alipay.trade.orderinfo.sync` - 商户订单信息同步
+
+### 风控预咨询
+- `alipay.trade.advance.consult` - 交易风控预咨询
+
+### 分账管理
+- `alipay.trade.royalty.relation.bind` - 分账关系绑定
+- `alipay.trade.royalty.relation.unbind` - 分账关系解绑
+- `alipay.trade.royalty.relation.batchquery` - 分账关系批量查询
+- `alipay.trade.royalty.rate.query` - 分账比例查询
 
 ### 用户协议管理
 - `alipay.user.agreement.page.sign` - 支付宝个人协议页面签约接口

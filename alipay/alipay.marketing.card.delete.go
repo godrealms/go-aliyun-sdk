@@ -29,8 +29,9 @@ func (c *Client) AlipayMarketingCardDelete(request *types.CardDelete) (*types.Al
 	if err != nil {
 		return nil, err
 	}
+	value := data.ToUrlValue()
 	result := &types.AlipayMarketingCardDeleteResponse{}
-	err = c.Http.PostForm(context.Background(), "", data.ToUrlValue(), nil, result)
+	err = c.Http.PostForm(context.Background(), "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

@@ -33,5 +33,5 @@ func (c *Client) AlipayTradeWapPay(req *types.TradeWapPay) (string, error) {
 		return "", err
 	}
 	value := data.ToUrlValue()
-	return fmt.Sprintf("%s?%s", c.Http.BaseURL, value.Encode()), nil
+	return fmt.Sprintf("%s?%s", c.Http.GetBaseURL(), value.Encode()), nil
 }

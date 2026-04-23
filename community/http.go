@@ -16,9 +16,24 @@ import (
 // HTTP 客户端结构体
 type HTTP struct {
 	BaseURL string
-	Client  *http.Client
-	Headers map[string]string
-	Timeout time.Duration
+	// BaseURLFunc 当 BaseURL 为空时作为兜底在请求时动态解析基础URL，
+	// 便于上层按运行时状态（如 Sandbox 开关）切换网关地址，
+	// 同时允许测试/自定义场景通过 SetBaseURL 直接覆盖。
+	BaseURLFunc func() string
+	Client      *http.Client
+	Headers     map[string]string
+	Timeout     time.Duration
+}
+
+// GetBaseURL 返回当前生效的基础URL，优先使用显式设置的 BaseURL。
+func (h *HTTP) GetBaseURL() string {
+	if h.BaseURL != "" {
+		return h.BaseURL
+	}
+	if h.BaseURLFunc != nil {
+		return h.BaseURLFunc()
+	}
+	return ""
 }
 
 // Option 定义配置选项的函数类型
@@ -69,7 +84,7 @@ func (h *HTTP) SetBaseURL(url string) {
 // do 执行 HTTP 请求的通用方法
 func (h *HTTP) do(ctx context.Context, method, path string, body interface{}, query url.Values, result interface{}) error {
 	// 构建完整URL
-	fullURL := h.BaseURL + path
+	fullURL := h.GetBaseURL() + path
 	if query != nil {
 		fullURL += "?" + query.Encode()
 	}
@@ -159,7 +174,7 @@ func (h *HTTP) Delete(ctx context.Context, path string, result interface{}) erro
 
 // PostForm 发送 POST 表单请求
 func (h *HTTP) PostForm(ctx context.Context, path string, form url.Values, query url.Values, result interface{}) error {
-	fullURL := h.BaseURL + path
+	fullURL := h.GetBaseURL() + path
 	if query != nil {
 		fullURL += "?" + query.Encode()
 	}
