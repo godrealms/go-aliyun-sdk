@@ -9,19 +9,19 @@ import (
 )
 
 // AlipayUserInfoShare 获取用户基本信息（alipay.user.info.share）
-// authToken: 用户级 OAuth access_token（通过 AlipaySystemOauthToken 换取）
-func (c *Client) AlipayUserInfoShare(authToken string) (*types.AlipayUserInfoShareResponse, error) {
+// req.AuthToken 为用户级 OAuth access_token（通过 AlipaySystemOauthToken 换取），
+// 该接口以用户身份调用，不附带 app_auth_token。
+func (c *Client) AlipayUserInfoShare(req *types.UserInfoShare) (*types.AlipayUserInfoShareResponse, error) {
 	data := types.PublicRequestParameters{
-		AppId:        c.AppId,
-		Method:       "alipay.user.info.share",
-		Format:       "JSON",
-		Charset:      "UTF-8",
-		SignType:     "RSA2",
-		Timestamp:    time.Now().Format("2006-01-02 15:04:05"),
-		Version:      "1.0",
-		AppAuthToken: c.AppAuthToken,
-		AuthToken:    authToken,
-		BizContent:   (&types.UserInfoShare{}).ToString(),
+		AppId:      c.AppId,
+		Method:     "alipay.user.info.share",
+		Format:     "JSON",
+		Charset:    "UTF-8",
+		SignType:   "RSA2",
+		Timestamp:  time.Now().Format("2006-01-02 15:04:05"),
+		Version:    "1.0",
+		AuthToken:  req.AuthToken,
+		BizContent: req.ToString(),
 	}
 
 	signature, err := community.NewSignatureHelper(c.PrivateKey)

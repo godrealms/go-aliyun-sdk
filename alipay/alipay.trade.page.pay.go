@@ -33,6 +33,6 @@ func (c *Client) AlipayTradePagePay(form *types.TradePay) (string, error) {
 	}
 	value := data.ToUrlValue()
 
-	fullURL := fmt.Sprintf("%s?%s", c.Http.BaseURL, value.Encode())
+	fullURL := fmt.Sprintf("%s?%s", c.Http.GetBaseURL(), value.Encode())
 	return fullURL, nil
 }

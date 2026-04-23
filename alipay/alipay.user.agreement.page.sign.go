@@ -33,7 +33,7 @@ func (c *Client) GetAlipayUserAgreementPageSign(page *types.AgreementPageSign) (
 	}
 
 	urlValue := data.ToUrlValue()
-	return fmt.Sprintf("%s?%s", c.Http.BaseURL, urlValue.Encode()), nil
+	return fmt.Sprintf("%s?%s", c.Http.GetBaseURL(), urlValue.Encode()), nil
 }
 
 // PostAlipayUserAgreementPageSign 支付宝个人协议页面签约接口(拼接参数)

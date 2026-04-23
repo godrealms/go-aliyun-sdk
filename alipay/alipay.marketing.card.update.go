@@ -29,8 +29,9 @@ func (c *Client) AlipayMarketingCardUpdate(request *types.CardUpdate) (*types.Al
 	if err != nil {
 		return nil, err
 	}
+	value := data.ToUrlValue()
 	result := &types.AlipayMarketingCardUpdateResponse{}
-	err = c.Http.PostForm(context.Background(), "", data.ToUrlValue(), nil, result)
+	err = c.Http.PostForm(context.Background(), "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

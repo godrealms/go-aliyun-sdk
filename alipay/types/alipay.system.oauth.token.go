@@ -21,6 +21,8 @@ func (r *SystemOauthToken) ToString() string {
 }
 
 // SystemOauthTokenDetail 换取用户授权令牌响应详情
+// 注意：该接口的 code/msg 位于 alipay_system_oauth_token_response 对象内部，
+// 因此 PublicResponseParameters 嵌入在 Detail 中而非顶层（有别于 trade 系列接口）。
 type SystemOauthTokenDetail struct {
 	PublicResponseParameters
 	//【描述】支付宝用户 ID
