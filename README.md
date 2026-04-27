@@ -25,6 +25,14 @@ Go SDK for Aliyun services, including Alipay API integration.
 go get github.com/godrealms/go-aliyun-sdk
 ```
 
+## 升级说明（Breaking Changes）
+
+本次更新引入了几处不兼容变更，从旧版本升级请同步调整调用方代码：
+
+1. **所有 client API 方法新增 `ctx context.Context` 作为第一个参数。** 例如 `client.AlipayTradeQuery(req)` → `client.AlipayTradeQuery(ctx, req)`。`GetOpenAuthPageURL` / `GetUserAuthPageURL` / `Notify` 三个方法不发起网络请求，签名不变。
+2. **`AlipayTradeRefund` 返回类型由 `*types.TradeRefundResponse` 调整为 `*types.AlipayTradeRefundResponse`**，与其他接口的外层包装类型保持一致。读取业务字段需经由 `resp.Response.XXX`。
+3. **`Client.PrivateKey` 必须在第一次 API 调用前设置；**首次调用后，签名助手会被缓存，后续修改 `PrivateKey` 不再生效。
+
 ## 快速开始
 
 ### 商户直连模式
@@ -68,7 +76,7 @@ u, err := client.GetOpenAuthPageURL(&types.OpenAuthPage{
 ### 换取授权令牌
 
 ```go
-resp, err := client.AlipayOpenAuthTokenApp(&types.OpenAuthTokenApp{
+resp, err := client.AlipayOpenAuthTokenApp(context.Background(), &types.OpenAuthTokenApp{
     GrantType: "authorization_code",
     Code:      "授权码",
 })
@@ -78,9 +86,13 @@ appAuthToken := resp.AlipayOpenAuthTokenAppResponse.AppAuthToken
 ### 查询交易
 
 ```go
-import "github.com/godrealms/go-aliyun-sdk/alipay/types"
+import (
+    "context"
 
-resp, err := client.AlipayTradeQuery(&types.TradeQuery{
+    "github.com/godrealms/go-aliyun-sdk/alipay/types"
+)
+
+resp, err := client.AlipayTradeQuery(context.Background(), &types.TradeQuery{
     OutTradeNo: "out_trade_no",
 })
 ```
@@ -91,7 +103,7 @@ resp, err := client.AlipayTradeQuery(&types.TradeQuery{
 client.ReturnUrl = "https://example.com/return"
 client.NotifyUrl = "https://example.com/notify"
 
-payURL, err := client.AlipayTradeWapPay(&types.TradeWapPay{
+payURL, err := client.AlipayTradeWapPay(context.Background(), &types.TradeWapPay{
     OutTradeNo:  "20240101001",
     Subject:     "商品名称",
     TotalAmount: "88.00",
@@ -106,7 +118,7 @@ payURL, err := client.AlipayTradeWapPay(&types.TradeWapPay{
 通过服务端预建订单，适合需要先在支付宝系统创建订单再唤起支付的场景：
 
 ```go
-resp, err := client.AlipayTradeCreate(&types.TradeCreate{
+resp, err := client.AlipayTradeCreate(context.Background(), &types.TradeCreate{
     OutTradeNo:  "20240101001",
     Subject:     "商品名称",
     TotalAmount: "88.00",
@@ -125,7 +137,7 @@ log.Printf("TradeNo: %s", resp.Response.TradeNo)
 ```go
 royaltyParams := `[{"trans_in":"2088xxxxxxxx","trans_in_type":"userId","amount":"10.00","desc":"分账说明"}]`
 
-resp, err := client.AlipayTradeOrderSettle(&types.TradeOrderSettle{
+resp, err := client.AlipayTradeOrderSettle(context.Background(), &types.TradeOrderSettle{
     OutRequestNo:      "settle_20240101001",
     TradeNo:           "2024xxxxxxxxxxxxxxxx",
     RoyaltyParameters: royaltyParams,
@@ -141,7 +153,7 @@ log.Printf("TradeNo: %s", resp.Response.TradeNo)
 在发起支付前查询风控建议，根据 `NextAction` 决定是否继续：
 
 ```go
-resp, err := client.AlipayTradeAdvanceConsult(&types.TradeAdvanceConsult{
+resp, err := client.AlipayTradeAdvanceConsult(context.Background(), &types.TradeAdvanceConsult{
     OutTradeNo:  "20240101001",
     TotalAmount: "88.00",
     Subject:     "商品名称",
@@ -163,7 +175,7 @@ log.Printf("ConsultId: %s, NextAction: %s, RiskLevel: %s",
 ```go
 receivers := `[{"type":"userId","account":"2088xxxxxxxx","name":"张三","memo":"合作商家"}]`
 
-resp, err := client.AlipayTradeRoyaltyRelationBind(&types.TradeRoyaltyRelationBind{
+resp, err := client.AlipayTradeRoyaltyRelationBind(context.Background(), &types.TradeRoyaltyRelationBind{
     OutRequestNo: "bind_20240101001",
     ReceiverList: receivers,
 })
@@ -172,7 +184,7 @@ resp, err := client.AlipayTradeRoyaltyRelationBind(&types.TradeRoyaltyRelationBi
 **解绑分账关系**：
 
 ```go
-resp, err := client.AlipayTradeRoyaltyRelationUnbind(&types.TradeRoyaltyRelationUnbind{
+resp, err := client.AlipayTradeRoyaltyRelationUnbind(context.Background(), &types.TradeRoyaltyRelationUnbind{
     OutRequestNo: "unbind_20240101001",
     ReceiverList: receivers,
 })
@@ -181,7 +193,7 @@ resp, err := client.AlipayTradeRoyaltyRelationUnbind(&types.TradeRoyaltyRelation
 **批量查询分账关系**：
 
 ```go
-resp, err := client.AlipayTradeRoyaltyRelationBatchquery(&types.TradeRoyaltyRelationBatchquery{
+resp, err := client.AlipayTradeRoyaltyRelationBatchquery(context.Background(), &types.TradeRoyaltyRelationBatchquery{
     OutRequestNo: "query_20240101001",
     PageNum:      1,
     PageSize:     10,
@@ -198,7 +210,7 @@ for _, r := range resp.Response.ReceiverInfos {
 **查询分账比例**：
 
 ```go
-resp, err := client.AlipayTradeRoyaltyRateQuery(&types.TradeRoyaltyRateQuery{
+resp, err := client.AlipayTradeRoyaltyRateQuery(context.Background(), &types.TradeRoyaltyRateQuery{
     OutRequestNo: "ratequery_20240101001",
 })
 if err != nil {
@@ -214,7 +226,7 @@ for _, info := range resp.Response.RoyaltyInfos {
 将商户侧订单状态同步至支付宝，适用于先享后付、信用场景等：
 
 ```go
-resp, err := client.AlipayTradeOrderinfoSync(&types.TradeOrderinfoSync{
+resp, err := client.AlipayTradeOrderinfoSync(context.Background(), &types.TradeOrderinfoSync{
     TradeNo:      "2024xxxxxxxxxxxxxxxx",
     OutRequestNo: "sync_20240101001",
     OrderType:    "CREDITCASHADVANCE",
@@ -285,8 +297,9 @@ fmt.Println(notify.TradeStatus)
 
 ```go
 client.Sandbox = true
-client.Http.SetBaseURL("https://openapi-sandbox.dl.alipaydev.com/gateway.do")
 ```
+
+设置 `Sandbox = true` 即可，客户端会自动将网关切换为沙箱地址 `https://openapi-sandbox.dl.alipaydev.com/gateway.do`。无需手动调用 `Http.SetBaseURL`。
 
 ## 贡献
 

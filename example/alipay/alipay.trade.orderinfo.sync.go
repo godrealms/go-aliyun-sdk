@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipayTradeOrderinfoSync(&types.TradeOrderinfoSync{
+	resp, err := client.AlipayTradeOrderinfoSync(context.Background(), &types.TradeOrderinfoSync{
 		TradeNo:      os.Getenv("ALIPAY_TRADE_NO"),
 		OutRequestNo: os.Getenv("ALIPAY_OUT_REQUEST_NO"),
 		OrderType:    os.Getenv("ALIPAY_ORDER_TYPE"),

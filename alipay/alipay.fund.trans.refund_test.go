@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -14,7 +15,7 @@ func TestAlipayFundTransRefund(t *testing.T) {
 		OrderId:      "20260420110070000006880000000000",
 		RefundAmount: "10.00",
 	}
-	resp, err := client.AlipayFundTransRefund(req)
+	resp, err := client.AlipayFundTransRefund(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

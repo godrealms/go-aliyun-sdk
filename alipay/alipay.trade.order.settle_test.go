@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -14,7 +15,7 @@ func TestAlipayTradeOrderSettle(t *testing.T) {
 		TradeNo:           "2026042022001480551404403002",
 		RoyaltyParameters: `[{"trans_in":"2088102146225136","amount":"10.00","desc":"分账给供应商"}]`,
 	}
-	resp, err := client.AlipayTradeOrderSettle(req)
+	resp, err := client.AlipayTradeOrderSettle(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

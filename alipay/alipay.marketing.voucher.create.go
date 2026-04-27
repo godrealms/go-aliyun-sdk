@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayMarketingVoucherCreate 创建优惠券（alipay.marketing.voucher.create）
-func (c *Client) AlipayMarketingVoucherCreate(request *types.VoucherCreate) (*types.AlipayMarketingVoucherCreateResponse, error) {
+func (c *Client) AlipayMarketingVoucherCreate(ctx context.Context, request *types.VoucherCreate) (*types.AlipayMarketingVoucherCreateResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.marketing.voucher.create",
@@ -21,16 +20,16 @@ func (c *Client) AlipayMarketingVoucherCreate(request *types.VoucherCreate) (*ty
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   request.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	result := &types.AlipayMarketingVoucherCreateResponse{}
-	err = c.Http.PostForm(context.Background(), "", data.ToUrlValue(), nil, result)
+	err = c.Http.PostForm(ctx, "", data.ToUrlValue(), nil, result)
 	if err != nil {
 		return nil, err
 	}

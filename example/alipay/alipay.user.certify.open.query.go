@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipayUserCertifyOpenQuery(&types.UserCertifyOpenQuery{
+	resp, err := client.AlipayUserCertifyOpenQuery(context.Background(), &types.UserCertifyOpenQuery{
 		CertifyId: os.Getenv("ALIPAY_CERTIFY_ID"),
 	})
 	if err != nil {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"log"
@@ -30,7 +31,7 @@ func main() {
 		OperateType:         "",
 	}
 
-	transfer, err := client.AlipayUserAgreementUnSign(query)
+	transfer, err := client.AlipayUserAgreementUnSign(context.Background(), query)
 	if err != nil {
 		log.Fatalln(err)
 	}

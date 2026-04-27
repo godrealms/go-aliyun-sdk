@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -18,7 +19,7 @@ func TestAlipayMarketingCampaignCashCreate(t *testing.T) {
 		StartTime:   "2026-04-20 00:00:00",
 		EndTime:     "2026-05-20 23:59:59",
 	}
-	resp, err := client.AlipayMarketingCampaignCashCreate(req)
+	resp, err := client.AlipayMarketingCampaignCashCreate(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

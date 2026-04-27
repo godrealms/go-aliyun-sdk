@@ -1,6 +1,11 @@
 package alipay
 
-import "github.com/godrealms/go-aliyun-sdk/community"
+import (
+	"fmt"
+	"sync"
+
+	"github.com/godrealms/go-aliyun-sdk/community"
+)
 
 const (
 	// GatewayURL 生产环境网关
@@ -19,6 +24,10 @@ type Client struct {
 	AppAuthToken    string // 应用授权令牌
 	Sandbox         bool   // 是否沙箱环境（影响网关及授权页URL）
 	Http            *community.HTTP
+
+	signerOnce sync.Once
+	signer     *community.SignatureHelper
+	signerErr  error
 }
 
 func NewClient() *Client {
@@ -46,4 +55,19 @@ func (c *Client) Gateway() string {
 		return SandboxGatewayURL
 	}
 	return GatewayURL
+}
+
+// getSigner 返回缓存的签名助手，首次调用时从 PrivateKey 初始化。
+// PrivateKey 必须在第一次 API 调用前设置；之后修改不生效。
+func (c *Client) getSigner() (*community.SignatureHelper, error) {
+	c.signerOnce.Do(func() {
+		c.signer, c.signerErr = community.NewSignatureHelper(c.PrivateKey)
+	})
+	if c.signerErr != nil {
+		return nil, fmt.Errorf("signature helper init: %w", c.signerErr)
+	}
+	if c.signer == nil {
+		return nil, fmt.Errorf("signature helper not initialized: PrivateKey may be empty")
+	}
+	return c.signer, nil
 }

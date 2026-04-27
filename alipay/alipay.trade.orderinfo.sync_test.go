@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -15,7 +16,7 @@ func TestAlipayTradeOrderinfoSync(t *testing.T) {
 		OrderType:    "CREDIT_ADVANCE",
 		OrderScene:   "CREDIT_ADVANCE_SETTLE",
 	}
-	resp, err := client.AlipayTradeOrderinfoSync(req)
+	resp, err := client.AlipayTradeOrderinfoSync(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

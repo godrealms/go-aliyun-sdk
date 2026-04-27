@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayFundTransOrderQuery 查询转账订单（alipay.fund.trans.order.query）
-func (c *Client) AlipayFundTransOrderQuery(request *types.FundTransOrderQuery) (*types.AlipayFundTransOrderQueryResponse, error) {
+func (c *Client) AlipayFundTransOrderQuery(ctx context.Context, request *types.FundTransOrderQuery) (*types.AlipayFundTransOrderQueryResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.fund.trans.order.query",
@@ -22,18 +21,18 @@ func (c *Client) AlipayFundTransOrderQuery(request *types.FundTransOrderQuery) (
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 
 	value := data.ToUrlValue()
 	result := &types.AlipayFundTransOrderQueryResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

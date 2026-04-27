@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipayUserInfoShare(&types.UserInfoShare{
+	resp, err := client.AlipayUserInfoShare(context.Background(), &types.UserInfoShare{
 		AuthToken: os.Getenv("ALIPAY_USER_ACCESS_TOKEN"),
 	})
 	if err != nil {

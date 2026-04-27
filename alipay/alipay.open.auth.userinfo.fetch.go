@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayOpenAuthUserinfoFetch 查询可代运营商家信息（alipay.open.auth.userinfo.fetch）
-func (c *Client) AlipayOpenAuthUserinfoFetch(request *types.OpenAuthUserinfoFetch) (*types.AlipayOpenAuthUserinfoFetchResponse, error) {
+func (c *Client) AlipayOpenAuthUserinfoFetch(ctx context.Context, request *types.OpenAuthUserinfoFetch) (*types.AlipayOpenAuthUserinfoFetchResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.open.auth.userinfo.fetch",
@@ -22,18 +21,18 @@ func (c *Client) AlipayOpenAuthUserinfoFetch(request *types.OpenAuthUserinfoFetc
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 
 	value := data.ToUrlValue()
 	result := &types.AlipayOpenAuthUserinfoFetchResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

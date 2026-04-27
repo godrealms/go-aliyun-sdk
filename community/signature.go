@@ -13,7 +13,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"hash"
-	"log"
 	"net/url"
 	"reflect"
 	"sort"
@@ -106,7 +105,6 @@ func (sh *SignatureHelper) GenerateSignature(params interface{}) (string, error)
 
 	// 2. 排序并构建待签名字符串
 	signContent := sh.buildSignContent(filteredParams)
-	log.Println("signContent: ", signContent)
 	// 3. 生成签名
 	signature, err := sh.sign(signContent)
 	if err != nil {
@@ -327,7 +325,6 @@ func (sh *SignatureHelper) VerifySignature(params interface{}, signature string)
 
 	// 2. 构建待验证的内容
 	signContent := sh.buildSignContent(filteredParams)
-	log.Println("signContent: ", signContent)
 
 	// 3. 解码签名
 	signatureBytes, err := base64.StdEncoding.DecodeString(signature)
@@ -487,8 +484,6 @@ func (s *AlipayVerifyService) VerifyNotifySign(values url.Values) (bool, error) 
 	if err != nil {
 		return false, fmt.Errorf("failed to build signature string: %v", err)
 	}
-
-	log.Printf("signContent: %s\n", signStr)
 
 	// 4. 验证签名
 	return s.verifyRSA2Sign(signStr, sign)

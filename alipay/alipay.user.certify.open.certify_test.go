@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 func TestAlipayUserCertifyOpenCertify(t *testing.T) {
 	client, ts := newTestClient(t, "")
 	req := &types.UserCertifyOpenCertify{CertifyId: "OcCp2413fkv09diXXXXX"}
-	u, err := client.AlipayUserCertifyOpenCertify(req)
+	u, err := client.AlipayUserCertifyOpenCertify(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

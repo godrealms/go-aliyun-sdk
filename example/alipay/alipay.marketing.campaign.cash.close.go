@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -13,7 +14,7 @@ func main() {
 	client.AppId = os.Getenv("ALIPAY_APP_ID")
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
-	resp, err := client.AlipayMarketingCampaignCashClose(&types.CampaignCashClose{CrowdNo: os.Getenv("ALIPAY_CROWD_NO")})
+	resp, err := client.AlipayMarketingCampaignCashClose(context.Background(), &types.CampaignCashClose{CrowdNo: os.Getenv("ALIPAY_CROWD_NO")})
 	if err != nil {
 		log.Fatal(err)
 	}

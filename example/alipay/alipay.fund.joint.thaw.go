@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipayFundJointThaw(&types.FundJointThaw{
+	resp, err := client.AlipayFundJointThaw(context.Background(), &types.FundJointThaw{
 		OutRequestNo: "THAW_REQUEST_001",
 		FreezeId:     os.Getenv("ALIPAY_FREEZE_ID"),
 		Amount:       "0.10",

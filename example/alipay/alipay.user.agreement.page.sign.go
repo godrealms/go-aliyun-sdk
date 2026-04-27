@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"log"
@@ -10,7 +11,7 @@ import (
 
 // GetAlipayUserAgreementPageSign 支付宝个人协议页面签约接口(URL)
 func GetAlipayUserAgreementPageSign(client *alipay.Client, page *types.AgreementPageSign) {
-	url, err := client.GetAlipayUserAgreementPageSign(page)
+	url, err := client.GetAlipayUserAgreementPageSign(context.Background(), page)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -20,7 +21,7 @@ func GetAlipayUserAgreementPageSign(client *alipay.Client, page *types.Agreement
 
 // PostAlipayUserAgreementPageSign 支付宝个人协议页面签约接口(form表单)
 func PostAlipayUserAgreementPageSign(client *alipay.Client, page *types.AgreementPageSign) {
-	data, err := client.PostAlipayUserAgreementPageSign(page)
+	data, err := client.PostAlipayUserAgreementPageSign(context.Background(), page)
 	if err != nil {
 		log.Fatal(err)
 		return

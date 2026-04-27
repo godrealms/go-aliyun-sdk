@@ -5,10 +5,9 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
-func (c *Client) AlipayTradePreCreate(form *types.TradePay) (*types.AlipayTradePreCreateResponse, error) {
+func (c *Client) AlipayTradePreCreate(ctx context.Context, form *types.TradePay) (*types.AlipayTradePreCreateResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.precreate",
@@ -23,17 +22,17 @@ func (c *Client) AlipayTradePreCreate(form *types.TradePay) (*types.AlipayTradeP
 		BizContent:   form.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.AlipayTradePreCreateResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}
