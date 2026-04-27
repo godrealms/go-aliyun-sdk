@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -9,7 +10,7 @@ import (
 func TestAlipayMarketingCardTemplateQuery(t *testing.T) {
 	mockResp := `{"alipay_marketing_card_template_query_response":{"code":"10000","msg":"Success","template_id":"TPL20260420001","template_name":"黄金会员卡","status":"NORMAL"},"sign":"fakesign"}`
 	client, _ := newTestClient(t, mockResp)
-	resp, err := client.AlipayMarketingCardTemplateQuery(&types.CardTemplateQuery{TemplateId: "TPL20260420001"})
+	resp, err := client.AlipayMarketingCardTemplateQuery(context.Background(), &types.CardTemplateQuery{TemplateId: "TPL20260420001"})
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

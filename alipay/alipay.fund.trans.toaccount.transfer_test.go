@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -15,7 +16,7 @@ func TestAlipayFundTransToaccountTransfer(t *testing.T) {
 		PayeeAccount: "test@example.com",
 		Amount:       "5.00",
 	}
-	resp, err := client.AlipayFundTransToaccountTransfer(req)
+	resp, err := client.AlipayFundTransToaccountTransfer(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

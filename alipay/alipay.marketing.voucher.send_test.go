@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -9,7 +10,7 @@ import (
 func TestAlipayMarketingVoucherSend(t *testing.T) {
 	mockResp := `{"alipay_marketing_voucher_send_response":{"code":"10000","msg":"Success","detail_id":"DTL20260420001"},"sign":"fakesign"}`
 	client, _ := newTestClient(t, mockResp)
-	resp, err := client.AlipayMarketingVoucherSend(&types.VoucherSend{
+	resp, err := client.AlipayMarketingVoucherSend(context.Background(), &types.VoucherSend{
 		VoucherId: "VCH20260420001", OpenId: "0680809090909090909090909090", OutBizNo: "send20260420001",
 	})
 	if err != nil {

@@ -3,11 +3,10 @@ package alipay
 import (
 	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 	"time"
 )
 
-func (c *Client) AlipayDataServiceBillDownloadUrlQuery(query *types.BillDownloadUrlQuery) (*types.BillDownloadUrlResponse, error) {
+func (c *Client) AlipayDataServiceBillDownloadUrlQuery(ctx context.Context, query *types.BillDownloadUrlQuery) (*types.BillDownloadUrlResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.data.dataservice.bill.downloadurl.query",
@@ -22,17 +21,17 @@ func (c *Client) AlipayDataServiceBillDownloadUrlQuery(query *types.BillDownload
 		BizContent:   query.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.BillDownloadUrlResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	err = c.Http.Get(ctx, "", value, result)
 	if err != nil {
 		return nil, err
 	}

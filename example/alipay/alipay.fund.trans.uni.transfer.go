@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipayFundTransUniTransfer(&types.FundTransUniTransfer{
+	resp, err := client.AlipayFundTransUniTransfer(context.Background(), &types.FundTransUniTransfer{
 		OutBizNo:    "OUT_BIZ_NO_001",
 		TransAmount: "0.10",
 		ProductCode: "TRANS_ACCOUNT_NO_PWD",

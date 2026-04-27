@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayFundJointDeduct 从冻结金额扣款（alipay.fund.joint.deduct）
-func (c *Client) AlipayFundJointDeduct(request *types.FundJointDeduct) (*types.AlipayFundJointDeductResponse, error) {
+func (c *Client) AlipayFundJointDeduct(ctx context.Context, request *types.FundJointDeduct) (*types.AlipayFundJointDeductResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.fund.joint.deduct",
@@ -22,18 +21,18 @@ func (c *Client) AlipayFundJointDeduct(request *types.FundJointDeduct) (*types.A
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 
 	value := data.ToUrlValue()
 	result := &types.AlipayFundJointDeductResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

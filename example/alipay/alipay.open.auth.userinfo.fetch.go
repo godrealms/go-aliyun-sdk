@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -19,7 +20,7 @@ func main() {
 	client.Sandbox = true
 	client.Http.SetBaseURL("https://openapi-sandbox.dl.alipaydev.com/gateway.do")
 
-	resp, err := client.AlipayOpenAuthUserinfoFetch(&types.OpenAuthUserinfoFetch{
+	resp, err := client.AlipayOpenAuthUserinfoFetch(context.Background(), &types.OpenAuthUserinfoFetch{
 		AppAuthToken: os.Getenv("ALIPAY_APP_AUTH_TOKEN"),
 	})
 	if err != nil {

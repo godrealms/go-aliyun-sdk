@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"log"
@@ -30,7 +31,7 @@ func main() {
 		TargetProductCode: "CYCLE_PAY_AUTH_P",
 	}
 
-	transfer, err := client.AgreementTransfer(query)
+	transfer, err := client.AgreementTransfer(context.Background(), query)
 	if err != nil {
 		log.Fatalln(err)
 	}

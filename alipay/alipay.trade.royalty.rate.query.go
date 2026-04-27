@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayTradeRoyaltyRateQuery 分账比例查询（alipay.trade.royalty.rate.query）
-func (c *Client) AlipayTradeRoyaltyRateQuery(req *types.TradeRoyaltyRateQuery) (*types.AlipayTradeRoyaltyRateQueryResponse, error) {
+func (c *Client) AlipayTradeRoyaltyRateQuery(ctx context.Context, req *types.TradeRoyaltyRateQuery) (*types.AlipayTradeRoyaltyRateQueryResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.royalty.rate.query",
@@ -23,17 +22,17 @@ func (c *Client) AlipayTradeRoyaltyRateQuery(req *types.TradeRoyaltyRateQuery) (
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   req.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.AlipayTradeRoyaltyRateQueryResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	err = c.Http.Get(ctx, "", value, result)
 	if err != nil {
 		return nil, err
 	}

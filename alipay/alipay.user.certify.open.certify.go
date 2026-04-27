@@ -1,15 +1,15 @@
 package alipay
 
 import (
+	"context"
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayUserCertifyOpenCertify 开始实名认证，返回认证页跳转 URL（alipay.user.certify.open.certify）
 // 调用方将返回的 URL 作为跳转地址，在浏览器中打开即进入认证流程。
-func (c *Client) AlipayUserCertifyOpenCertify(request *types.UserCertifyOpenCertify) (string, error) {
+func (c *Client) AlipayUserCertifyOpenCertify(ctx context.Context, request *types.UserCertifyOpenCertify) (string, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.user.certify.open.certify",
@@ -22,11 +22,11 @@ func (c *Client) AlipayUserCertifyOpenCertify(request *types.UserCertifyOpenCert
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return "", err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return "", err
 	}

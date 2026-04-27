@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -16,7 +17,7 @@ func main() {
 	client.ReturnUrl = os.Getenv("ALIPAY_RETURN_URL")
 	client.NotifyUrl = os.Getenv("ALIPAY_NOTIFY_URL")
 
-	resp, err := client.AlipayTradeWapPay(&types.TradeWapPay{
+	resp, err := client.AlipayTradeWapPay(context.Background(), &types.TradeWapPay{
 		OutTradeNo:  os.Getenv("ALIPAY_OUT_TRADE_NO"),
 		Subject:     os.Getenv("ALIPAY_SUBJECT"),
 		TotalAmount: os.Getenv("ALIPAY_TOTAL_AMOUNT"),

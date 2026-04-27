@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayTradeOrderSettle 统一收单交易结算（alipay.trade.order.settle）
-func (c *Client) AlipayTradeOrderSettle(req *types.TradeOrderSettle) (*types.AlipayTradeOrderSettleResponse, error) {
+func (c *Client) AlipayTradeOrderSettle(ctx context.Context, req *types.TradeOrderSettle) (*types.AlipayTradeOrderSettleResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.order.settle",
@@ -23,17 +22,17 @@ func (c *Client) AlipayTradeOrderSettle(req *types.TradeOrderSettle) (*types.Ali
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   req.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.AlipayTradeOrderSettleResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

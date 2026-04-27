@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayMarketingCampaignCashTrigger 触发活动奖励发放（alipay.marketing.campaign.cash.trigger）
-func (c *Client) AlipayMarketingCampaignCashTrigger(request *types.CampaignCashTrigger) (*types.AlipayMarketingCampaignCashTriggerResponse, error) {
+func (c *Client) AlipayMarketingCampaignCashTrigger(ctx context.Context, request *types.CampaignCashTrigger) (*types.AlipayMarketingCampaignCashTriggerResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.marketing.campaign.cash.trigger",
@@ -21,16 +20,16 @@ func (c *Client) AlipayMarketingCampaignCashTrigger(request *types.CampaignCashT
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   request.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	result := &types.AlipayMarketingCampaignCashTriggerResponse{}
-	err = c.Http.PostForm(context.Background(), "", data.ToUrlValue(), nil, result)
+	err = c.Http.PostForm(ctx, "", data.ToUrlValue(), nil, result)
 	if err != nil {
 		return nil, err
 	}

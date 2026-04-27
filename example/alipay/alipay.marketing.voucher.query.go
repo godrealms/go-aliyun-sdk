@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -13,7 +14,7 @@ func main() {
 	client.AppId = os.Getenv("ALIPAY_APP_ID")
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
-	resp, err := client.AlipayMarketingVoucherQuery(&types.VoucherQuery{VoucherId: os.Getenv("ALIPAY_VOUCHER_ID")})
+	resp, err := client.AlipayMarketingVoucherQuery(context.Background(), &types.VoucherQuery{VoucherId: os.Getenv("ALIPAY_VOUCHER_ID")})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipaySystemOauthToken(&types.SystemOauthToken{
+	resp, err := client.AlipaySystemOauthToken(context.Background(), &types.SystemOauthToken{
 		GrantType: "authorization_code",
 		Code:      os.Getenv("ALIPAY_AUTH_CODE"),
 	})
