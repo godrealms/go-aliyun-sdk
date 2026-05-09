@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"log"
@@ -20,7 +21,7 @@ func main() {
 	query := &types.UserAgreementQuery{
 		AlipayUserId: "2088101122675263",
 	}
-	response, err := client.AlipayUserAgreementQuery(query)
+	response, err := client.AlipayUserAgreementQuery(context.Background(), query)
 	if err != nil {
 		log.Fatalln(err)
 	}

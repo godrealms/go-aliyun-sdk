@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -9,7 +10,7 @@ import (
 func TestAlipayMarketingCampaignCashTrigger(t *testing.T) {
 	mockResp := `{"alipay_marketing_campaign_cash_trigger_response":{"code":"10000","msg":"Success","award_id":"AWARD20260420001"},"sign":"fakesign"}`
 	client, _ := newTestClient(t, mockResp)
-	resp, err := client.AlipayMarketingCampaignCashTrigger(&types.CampaignCashTrigger{
+	resp, err := client.AlipayMarketingCampaignCashTrigger(context.Background(), &types.CampaignCashTrigger{
 		CrowdNo: "20260420001", OpenId: "0680809090909090909090909090", OutBizNo: "biz20260420001",
 	})
 	if err != nil {

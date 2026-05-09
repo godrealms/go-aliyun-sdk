@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"log"
@@ -23,7 +24,7 @@ func main() {
 		Smid:     "",
 	}
 
-	downloadUrl, err := client.AlipayDataServiceBillDownloadUrlQuery(query)
+	downloadUrl, err := client.AlipayDataServiceBillDownloadUrlQuery(context.Background(), query)
 	if err != nil {
 		log.Fatal(err)
 	}

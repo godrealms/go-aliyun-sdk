@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -15,7 +16,7 @@ func TestAlipayFundJointFrozen(t *testing.T) {
 		Amount:       "50.00",
 		Remark:       "押金冻结",
 	}
-	resp, err := client.AlipayFundJointFrozen(req)
+	resp, err := client.AlipayFundJointFrozen(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

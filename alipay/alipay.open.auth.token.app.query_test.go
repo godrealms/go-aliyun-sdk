@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -14,7 +15,7 @@ func TestAlipayOpenAuthTokenAppQuery(t *testing.T) {
 	req := &types.OpenAuthTokenAppQuery{
 		AppAuthToken: "existtoken",
 	}
-	resp, err := client.AlipayOpenAuthTokenAppQuery(req)
+	resp, err := client.AlipayOpenAuthTokenAppQuery(context.Background(), req)
 	if err != nil {
 		t.Fatalf("AlipayOpenAuthTokenAppQuery error: %v", err)
 	}

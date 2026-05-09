@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -89,9 +88,6 @@ func (h *HTTP) do(ctx context.Context, method, path string, body interface{}, qu
 		fullURL += "?" + query.Encode()
 	}
 
-	log.Println("method:", method)
-	log.Println("fullURL:", fullURL)
-
 	// 处理请求体
 	var bodyReader io.Reader
 	if body != nil {
@@ -100,7 +96,6 @@ func (h *HTTP) do(ctx context.Context, method, path string, body interface{}, qu
 			return fmt.Errorf("marshal request body failed: %w", err)
 		}
 		bodyReader = bytes.NewReader(jsonBody)
-		log.Println("body:", string(jsonBody))
 	}
 
 	// 创建请求
@@ -207,14 +202,14 @@ func (h *HTTP) PostForm(ctx context.Context, path string, form url.Values, query
 	}
 
 	// 检查响应状态码
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	// 解析响应结果
 	if result != nil && len(respBody) > 0 {
 		if err = json.Unmarshal(respBody, result); err != nil {
-			return fmt.Errorf("unmarshal response body failed: %w:%s", err, string(respBody))
+			return fmt.Errorf("unmarshal response body failed: %w: %s", err, string(respBody))
 		}
 	}
 

@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -10,7 +11,7 @@ func TestAlipayFundTransOrderQuery(t *testing.T) {
 	mockResp := `{"alipay_fund_trans_order_query_response":{"code":"10000","msg":"Success","order_id":"20260420110070000006880000000000","status":"SUCCESS","pay_date":"2026-04-20 10:00:00","order_fee":"10.00","fail_reason":""},"sign":"fakesign"}`
 	client, _ := newTestClient(t, mockResp)
 	req := &types.FundTransOrderQuery{OutBizNo: "biz001"}
-	resp, err := client.AlipayFundTransOrderQuery(req)
+	resp, err := client.AlipayFundTransOrderQuery(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

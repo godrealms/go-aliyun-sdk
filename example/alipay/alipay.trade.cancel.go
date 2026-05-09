@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
 	"log"
@@ -22,7 +23,7 @@ func main() {
 		TradeNo:    "",
 	}
 
-	tradeAppPay, err := client.AlipayTradeCancel(query)
+	tradeAppPay, err := client.AlipayTradeCancel(context.Background(), query)
 	if err != nil {
 		log.Fatal(err)
 	}

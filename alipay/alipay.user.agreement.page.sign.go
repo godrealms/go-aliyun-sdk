@@ -1,14 +1,14 @@
 package alipay
 
 import (
+	"context"
 	"fmt"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 	"time"
 )
 
 // GetAlipayUserAgreementPageSign 支付宝个人协议页面签约接口(跳转地址)
-func (c *Client) GetAlipayUserAgreementPageSign(page *types.AgreementPageSign) (string, error) {
+func (c *Client) GetAlipayUserAgreementPageSign(ctx context.Context, page *types.AgreementPageSign) (string, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.user.agreement.page.sign",
@@ -22,12 +22,12 @@ func (c *Client) GetAlipayUserAgreementPageSign(page *types.AgreementPageSign) (
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   page.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return "", err
 	}
 
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return "", err
 	}
@@ -37,7 +37,7 @@ func (c *Client) GetAlipayUserAgreementPageSign(page *types.AgreementPageSign) (
 }
 
 // PostAlipayUserAgreementPageSign 支付宝个人协议页面签约接口(拼接参数)
-func (c *Client) PostAlipayUserAgreementPageSign(page *types.AgreementPageSign) (*types.PublicRequestParameters, error) {
+func (c *Client) PostAlipayUserAgreementPageSign(ctx context.Context, page *types.AgreementPageSign) (*types.PublicRequestParameters, error) {
 	data := &types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.user.agreement.page.sign",
@@ -51,12 +51,12 @@ func (c *Client) PostAlipayUserAgreementPageSign(page *types.AgreementPageSign) 
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   page.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
 
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -10,7 +11,7 @@ func TestAlipayMarketingCampaignCashList(t *testing.T) {
 	mockResp := `{"alipay_marketing_campaign_cash_list_response":{"code":"10000","msg":"Success","total_count":1,"result_list":[{"crowd_no":"20260420001","crowd_name":"春季促销活动","status":"ONGOING","start_time":"2026-04-20 00:00:00","end_time":"2026-05-20 23:59:59"}]},"sign":"fakesign"}`
 	client, _ := newTestClient(t, mockResp)
 	req := &types.CampaignCashList{PageIndex: "1", PageSize: "10"}
-	resp, err := client.AlipayMarketingCampaignCashList(req)
+	resp, err := client.AlipayMarketingCampaignCashList(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

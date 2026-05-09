@@ -3,11 +3,10 @@ package alipay
 import (
 	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 	"time"
 )
 
-func (c *Client) AlipayTradeFastPayRefundQuery(query *types.TradeFastPayRefundQuery) (*types.AlipayTradeFastPayRefundQueryResponse, error) {
+func (c *Client) AlipayTradeFastPayRefundQuery(ctx context.Context, query *types.TradeFastPayRefundQuery) (*types.AlipayTradeFastPayRefundQueryResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.fastpay.refund.query",
@@ -22,17 +21,17 @@ func (c *Client) AlipayTradeFastPayRefundQuery(query *types.TradeFastPayRefundQu
 		BizContent:   query.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.AlipayTradeFastPayRefundQueryResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	err = c.Http.Get(ctx, "", value, result)
 	if err != nil {
 		return nil, err
 	}

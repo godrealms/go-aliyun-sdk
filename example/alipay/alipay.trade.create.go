@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -15,7 +16,7 @@ func main() {
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 	client.NotifyUrl = os.Getenv("ALIPAY_NOTIFY_URL")
 
-	resp, err := client.AlipayTradeCreate(&types.TradeCreate{
+	resp, err := client.AlipayTradeCreate(context.Background(), &types.TradeCreate{
 		OutTradeNo:  os.Getenv("ALIPAY_OUT_TRADE_NO"),
 		Subject:     os.Getenv("ALIPAY_SUBJECT"),
 		TotalAmount: os.Getenv("ALIPAY_TOTAL_AMOUNT"),

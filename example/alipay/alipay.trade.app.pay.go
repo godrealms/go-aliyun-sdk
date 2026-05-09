@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -34,7 +35,7 @@ func main() {
 		QueryOptions:    nil,
 	}
 
-	tradeAppPay, err := client.AlipayTradeAppPay(query)
+	tradeAppPay, err := client.AlipayTradeAppPay(context.Background(), query)
 	if err != nil {
 		log.Fatal(err)
 	}

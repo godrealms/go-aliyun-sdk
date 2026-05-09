@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -13,7 +14,7 @@ func TestAlipayTradeRoyaltyRelationBind(t *testing.T) {
 		OutRequestNo: "bind20260420001",
 		ReceiverList: `[{"type":"loginName","account":"receiver@example.com","name":"收款方"}]`,
 	}
-	resp, err := client.AlipayTradeRoyaltyRelationBind(req)
+	resp, err := client.AlipayTradeRoyaltyRelationBind(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

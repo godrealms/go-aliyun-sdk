@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -9,7 +10,7 @@ import (
 func TestAlipayMarketingCardTemplateCreate(t *testing.T) {
 	mockResp := `{"alipay_marketing_card_template_create_response":{"code":"10000","msg":"Success","template_id":"TPL20260420001"},"sign":"fakesign"}`
 	client, _ := newTestClient(t, mockResp)
-	resp, err := client.AlipayMarketingCardTemplateCreate(&types.CardTemplateCreate{
+	resp, err := client.AlipayMarketingCardTemplateCreate(context.Background(), &types.CardTemplateCreate{
 		TemplateName: "黄金会员卡", LogoUrl: "https://example.com/logo.png",
 	})
 	if err != nil {

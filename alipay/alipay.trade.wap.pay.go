@@ -1,15 +1,15 @@
 package alipay
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayTradeWapPay H5手机网站支付（alipay.trade.wap.pay）
-func (c *Client) AlipayTradeWapPay(req *types.TradeWapPay) (string, error) {
+func (c *Client) AlipayTradeWapPay(ctx context.Context, req *types.TradeWapPay) (string, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.wap.pay",
@@ -24,11 +24,11 @@ func (c *Client) AlipayTradeWapPay(req *types.TradeWapPay) (string, error) {
 		BizContent:   req.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return "", err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return "", err
 	}

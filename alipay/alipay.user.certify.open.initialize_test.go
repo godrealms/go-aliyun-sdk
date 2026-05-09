@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -14,7 +15,7 @@ func TestAlipayUserCertifyOpenInitialize(t *testing.T) {
 		BizCode:       "FACE",
 		IdentityParam: `{"identity_type":"CERT_INFO","cert_type":"IDENTITY_CARD","cert_name":"张三","cert_no":"310000199001011234"}`,
 	}
-	resp, err := client.AlipayUserCertifyOpenInitialize(req)
+	resp, err := client.AlipayUserCertifyOpenInitialize(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

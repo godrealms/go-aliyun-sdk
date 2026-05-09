@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -13,7 +14,7 @@ func main() {
 	client.AppId = os.Getenv("ALIPAY_APP_ID")
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
-	resp, err := client.AlipayMarketingCardTemplateCreate(&types.CardTemplateCreate{
+	resp, err := client.AlipayMarketingCardTemplateCreate(context.Background(), &types.CardTemplateCreate{
 		TemplateName: "黄金会员卡", LogoUrl: os.Getenv("ALIPAY_LOGO_URL"),
 	})
 	if err != nil {

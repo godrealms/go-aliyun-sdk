@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -12,7 +13,7 @@ func TestAlipayTradeRoyaltyRelationBatchquery(t *testing.T) {
 	req := &types.TradeRoyaltyRelationBatchquery{
 		OutRequestNo: "bq20260420001",
 	}
-	resp, err := client.AlipayTradeRoyaltyRelationBatchquery(req)
+	resp, err := client.AlipayTradeRoyaltyRelationBatchquery(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayOpenAuthTokenAppQuery 查询应用授权令牌（alipay.open.auth.token.app.query）
-func (c *Client) AlipayOpenAuthTokenAppQuery(request *types.OpenAuthTokenAppQuery) (*types.AlipayOpenAuthTokenAppQueryResponse, error) {
+func (c *Client) AlipayOpenAuthTokenAppQuery(ctx context.Context, request *types.OpenAuthTokenAppQuery) (*types.AlipayOpenAuthTokenAppQueryResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.open.auth.token.app.query",
@@ -22,18 +21,18 @@ func (c *Client) AlipayOpenAuthTokenAppQuery(request *types.OpenAuthTokenAppQuer
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 
 	value := data.ToUrlValue()
 	result := &types.AlipayOpenAuthTokenAppQueryResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

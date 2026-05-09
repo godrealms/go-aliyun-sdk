@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -15,7 +16,7 @@ func TestAlipayOpenAuthTokenApp(t *testing.T) {
 		GrantType: "authorization_code",
 		Code:      "testcode",
 	}
-	resp, err := client.AlipayOpenAuthTokenApp(req)
+	resp, err := client.AlipayOpenAuthTokenApp(context.Background(), req)
 	if err != nil {
 		t.Fatalf("AlipayOpenAuthTokenApp error: %v", err)
 	}

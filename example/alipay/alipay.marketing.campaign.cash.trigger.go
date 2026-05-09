@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -13,7 +14,7 @@ func main() {
 	client.AppId = os.Getenv("ALIPAY_APP_ID")
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
-	resp, err := client.AlipayMarketingCampaignCashTrigger(&types.CampaignCashTrigger{
+	resp, err := client.AlipayMarketingCampaignCashTrigger(context.Background(), &types.CampaignCashTrigger{
 		CrowdNo: os.Getenv("ALIPAY_CROWD_NO"), OpenId: os.Getenv("ALIPAY_OPEN_ID"), OutBizNo: os.Getenv("ALIPAY_OUT_BIZ_NO"),
 	})
 	if err != nil {

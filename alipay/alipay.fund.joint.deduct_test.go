@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -15,7 +16,7 @@ func TestAlipayFundJointDeduct(t *testing.T) {
 		Amount:       "30.00",
 		Remark:       "扣除押金",
 	}
-	resp, err := client.AlipayFundJointDeduct(req)
+	resp, err := client.AlipayFundJointDeduct(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

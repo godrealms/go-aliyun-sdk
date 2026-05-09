@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -14,7 +15,7 @@ func TestAlipayTradeAdvanceConsult(t *testing.T) {
 		TotalAmount: "88.00",
 		Subject:     "测试预咨询",
 	}
-	resp, err := client.AlipayTradeAdvanceConsult(req)
+	resp, err := client.AlipayTradeAdvanceConsult(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

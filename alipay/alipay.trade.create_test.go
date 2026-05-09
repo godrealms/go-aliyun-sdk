@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -15,7 +16,7 @@ func TestAlipayTradeCreate(t *testing.T) {
 		TotalAmount: "88.00",
 		BuyerId:     "2088102146225135",
 	}
-	resp, err := client.AlipayTradeCreate(req)
+	resp, err := client.AlipayTradeCreate(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

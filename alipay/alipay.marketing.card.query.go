@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayMarketingCardQuery 查询会员卡（alipay.marketing.card.query）
-func (c *Client) AlipayMarketingCardQuery(request *types.CardQuery) (*types.AlipayMarketingCardQueryResponse, error) {
+func (c *Client) AlipayMarketingCardQuery(ctx context.Context, request *types.CardQuery) (*types.AlipayMarketingCardQueryResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.marketing.card.query",
@@ -21,17 +20,17 @@ func (c *Client) AlipayMarketingCardQuery(request *types.CardQuery) (*types.Alip
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   request.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.AlipayMarketingCardQueryResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

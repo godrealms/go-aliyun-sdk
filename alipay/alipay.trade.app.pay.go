@@ -1,12 +1,12 @@
 package alipay
 
 import (
+	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 	"time"
 )
 
-func (c *Client) AlipayTradeAppPay(form *types.TradePay) (string, error) {
+func (c *Client) AlipayTradeAppPay(ctx context.Context, form *types.TradePay) (string, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.app.pay",
@@ -20,12 +20,12 @@ func (c *Client) AlipayTradeAppPay(form *types.TradePay) (string, error) {
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   form.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return "", err
 	}
 
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return "", err
 	}

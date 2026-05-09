@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayTradeOrderinfoSync 商户订单信息同步（alipay.trade.orderinfo.sync）
-func (c *Client) AlipayTradeOrderinfoSync(req *types.TradeOrderinfoSync) (*types.AlipayTradeOrderinfoSyncResponse, error) {
+func (c *Client) AlipayTradeOrderinfoSync(ctx context.Context, req *types.TradeOrderinfoSync) (*types.AlipayTradeOrderinfoSyncResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.trade.orderinfo.sync",
@@ -23,17 +22,17 @@ func (c *Client) AlipayTradeOrderinfoSync(req *types.TradeOrderinfoSync) (*types
 		AppAuthToken: c.AppAuthToken,
 		BizContent:   req.ToString(),
 	}
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.AlipayTradeOrderinfoSyncResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

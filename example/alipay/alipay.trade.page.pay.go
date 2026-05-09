@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -37,7 +38,7 @@ func main() {
 		QrcodeWidth:     200,
 	}
 
-	tradePay, err := client.AlipayTradePagePay(form)
+	tradePay, err := client.AlipayTradePagePay(context.Background(), form)
 	if err != nil {
 		log.Fatal(err)
 	}

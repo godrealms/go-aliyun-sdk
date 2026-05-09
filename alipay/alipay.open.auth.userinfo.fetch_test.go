@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"testing"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
@@ -14,7 +15,7 @@ func TestAlipayOpenAuthUserinfoFetch(t *testing.T) {
 	req := &types.OpenAuthUserinfoFetch{
 		AppAuthToken: "test_app_auth_token",
 	}
-	resp, err := client.AlipayOpenAuthUserinfoFetch(req)
+	resp, err := client.AlipayOpenAuthUserinfoFetch(context.Background(), req)
 	if err != nil {
 		t.Fatalf("AlipayOpenAuthUserinfoFetch error: %v", err)
 	}

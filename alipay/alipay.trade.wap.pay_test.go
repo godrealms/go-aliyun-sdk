@@ -1,6 +1,7 @@
 package alipay
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -16,7 +17,7 @@ func TestAlipayTradeWapPay(t *testing.T) {
 		ProductCode: "QUICK_WAP_WAY",
 		QuitUrl:     "https://example.com/quit",
 	}
-	result, err := client.AlipayTradeWapPay(req)
+	result, err := client.AlipayTradeWapPay(context.Background(), req)
 	if err != nil {
 		t.Fatalf("error: %v", err)
 	}

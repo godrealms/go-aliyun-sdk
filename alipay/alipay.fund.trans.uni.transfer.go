@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayFundTransUniTransfer 单笔转账（alipay.fund.trans.uni.transfer）
-func (c *Client) AlipayFundTransUniTransfer(request *types.FundTransUniTransfer) (*types.AlipayFundTransUniTransferResponse, error) {
+func (c *Client) AlipayFundTransUniTransfer(ctx context.Context, request *types.FundTransUniTransfer) (*types.AlipayFundTransUniTransferResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.fund.trans.uni.transfer",
@@ -22,18 +21,18 @@ func (c *Client) AlipayFundTransUniTransfer(request *types.FundTransUniTransfer)
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 
 	value := data.ToUrlValue()
 	result := &types.AlipayFundTransUniTransferResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

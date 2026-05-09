@@ -3,12 +3,11 @@ package alipay
 import (
 	"context"
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 	"time"
 )
 
 // AlipayUserAgreementUnSign 支付宝个人代扣协议解约接口
-func (c *Client) AlipayUserAgreementUnSign(form *types.AgreementUnSign) (*types.AgreementUnsignResponse, error) {
+func (c *Client) AlipayUserAgreementUnSign(ctx context.Context, form *types.AgreementUnSign) (*types.AgreementUnsignResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.user.agreement.unsign",
@@ -23,17 +22,17 @@ func (c *Client) AlipayUserAgreementUnSign(form *types.AgreementUnSign) (*types.
 		BizContent:   form.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 	value := data.ToUrlValue()
 	result := &types.AgreementUnsignResponse{}
-	err = c.Http.Get(context.Background(), "", value, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

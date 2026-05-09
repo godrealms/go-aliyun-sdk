@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipayMarketingCampaignCashList(&types.CampaignCashList{
+	resp, err := client.AlipayMarketingCampaignCashList(context.Background(), &types.CampaignCashList{
 		PageIndex: "1",
 		PageSize:  "10",
 	})

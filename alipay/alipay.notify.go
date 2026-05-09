@@ -56,37 +56,22 @@ func BindURLValues(values url.Values, dst interface{}) error {
 		switch field.Kind() {
 		case reflect.String:
 			field.SetString(value)
-		case reflect.Int, reflect.Int64:
+		case reflect.Bool:
+			if boolVal, err := strconv.ParseBool(value); err == nil {
+				field.SetBool(boolVal)
+			}
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			if intVal, err := strconv.ParseInt(value, 10, 64); err == nil {
 				field.SetInt(intVal)
 			}
-		case reflect.Float64:
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+			if uintVal, err := strconv.ParseUint(value, 10, 64); err == nil {
+				field.SetUint(uintVal)
+			}
+		case reflect.Float32, reflect.Float64:
 			if floatVal, err := strconv.ParseFloat(value, 64); err == nil {
 				field.SetFloat(floatVal)
 			}
-		case reflect.Invalid:
-		case reflect.Bool:
-		case reflect.Int8:
-		case reflect.Int16:
-		case reflect.Int32:
-		case reflect.Uint:
-		case reflect.Uint8:
-		case reflect.Uint16:
-		case reflect.Uint32:
-		case reflect.Uint64:
-		case reflect.Uintptr:
-		case reflect.Float32:
-		case reflect.Complex64:
-		case reflect.Complex128:
-		case reflect.Array:
-		case reflect.Chan:
-		case reflect.Func:
-		case reflect.Interface:
-		case reflect.Map:
-		case reflect.Pointer:
-		case reflect.Slice:
-		case reflect.Struct:
-		case reflect.UnsafePointer:
 		}
 	}
 

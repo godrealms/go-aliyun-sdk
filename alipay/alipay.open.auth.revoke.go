@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayOpenAuthRevoke 解除应用授权（alipay.open.auth.revoke）
-func (c *Client) AlipayOpenAuthRevoke(request *types.OpenAuthRevoke) (*types.AlipayOpenAuthRevokeResponse, error) {
+func (c *Client) AlipayOpenAuthRevoke(ctx context.Context, request *types.OpenAuthRevoke) (*types.AlipayOpenAuthRevokeResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.open.auth.revoke",
@@ -22,18 +21,18 @@ func (c *Client) AlipayOpenAuthRevoke(request *types.OpenAuthRevoke) (*types.Ali
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 
 	value := data.ToUrlValue()
 	result := &types.AlipayOpenAuthRevokeResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -34,7 +35,7 @@ func main() {
 		QueryOptions:    nil,
 	}
 
-	tradePay, err := client.AlipayTradePreCreate(form)
+	tradePay, err := client.AlipayTradePreCreate(context.Background(), form)
 	if err != nil {
 		log.Fatal(err)
 	}

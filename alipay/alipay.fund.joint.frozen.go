@@ -5,11 +5,10 @@ import (
 	"time"
 
 	"github.com/godrealms/go-aliyun-sdk/alipay/types"
-	"github.com/godrealms/go-aliyun-sdk/community"
 )
 
 // AlipayFundJointFrozen 资金冻结（alipay.fund.joint.frozen）
-func (c *Client) AlipayFundJointFrozen(request *types.FundJointFrozen) (*types.AlipayFundJointFrozenResponse, error) {
+func (c *Client) AlipayFundJointFrozen(ctx context.Context, request *types.FundJointFrozen) (*types.AlipayFundJointFrozenResponse, error) {
 	data := types.PublicRequestParameters{
 		AppId:        c.AppId,
 		Method:       "alipay.fund.joint.frozen",
@@ -22,18 +21,18 @@ func (c *Client) AlipayFundJointFrozen(request *types.FundJointFrozen) (*types.A
 		BizContent:   request.ToString(),
 	}
 
-	signature, err := community.NewSignatureHelper(c.PrivateKey)
+	signer, err := c.getSigner()
 	if err != nil {
 		return nil, err
 	}
-	data.Sign, err = signature.GenerateSignature(data)
+	data.Sign, err = signer.GenerateSignature(data)
 	if err != nil {
 		return nil, err
 	}
 
 	value := data.ToUrlValue()
 	result := &types.AlipayFundJointFrozenResponse{}
-	err = c.Http.PostForm(context.Background(), "", value, nil, result)
+	err = c.Http.PostForm(ctx, "", value, nil, result)
 	if err != nil {
 		return nil, err
 	}

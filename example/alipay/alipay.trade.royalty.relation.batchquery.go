@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	client.PrivateKey = os.Getenv("ALIPAY_PRIVATE_KEY")
 	client.AlipayPublicKey = os.Getenv("ALIPAY_PUBLIC_KEY_FROM_ALIPAY")
 
-	resp, err := client.AlipayTradeRoyaltyRelationBatchquery(&types.TradeRoyaltyRelationBatchquery{
+	resp, err := client.AlipayTradeRoyaltyRelationBatchquery(context.Background(), &types.TradeRoyaltyRelationBatchquery{
 		OutRequestNo: os.Getenv("ALIPAY_OUT_REQUEST_NO"),
 	})
 	if err != nil {

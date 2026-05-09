@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -19,7 +20,7 @@ func main() {
 	client.Sandbox = true
 	client.Http.SetBaseURL("https://openapi-sandbox.dl.alipaydev.com/gateway.do")
 
-	resp, err := client.AlipayOpenAuthTokenApp(&types.OpenAuthTokenApp{
+	resp, err := client.AlipayOpenAuthTokenApp(context.Background(), &types.OpenAuthTokenApp{
 		GrantType: "authorization_code",
 		Code:      "授权码填此处",
 	})
